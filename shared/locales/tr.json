@@ -1,0 +1,331 @@
+{
+  "app": {
+    "name": "Ping Alert V2"
+  },
+  "common": {
+    "cancel": "Vazgeç",
+    "close": "Kapat",
+    "save": "Kaydet",
+    "saving": "Kaydediliyor...",
+    "delete": "Sil",
+    "deleting": "Siliniyor...",
+    "edit": "Düzenle",
+    "clear": "Temizle",
+    "or": "veya",
+    "emDash": "—"
+  },
+  "nav": {
+    "devices": "Cihazlar",
+    "groups": "Gruplar",
+    "settings": "Ayarlar",
+    "logs": "Loglar",
+    "addDevice": "Cihaz ekle",
+    "history": "Geçmiş"
+  },
+  "devices": {
+    "title": "Cihazlar",
+    "subtitle": "ICMP, TCP, HTTP ve SNMP kontrollerinin anlık durumu.",
+    "loading": "Cihazlar yükleniyor...",
+    "emptyTitle": "Henüz izlenecek cihaz yok",
+    "empty": "ICMP, TCP, HTTP veya SNMP kontrolü için bir cihaz ekleyin. Durum, uptime ve uyarılar burada görünür.",
+    "emptyGroup": "Bu grupta cihaz yok.",
+    "noMatch": "Bu arama veya süzgeçle eşleşen cihaz yok.",
+    "searchPlaceholder": "Ad veya host ara",
+    "all": "Tümü ({{count}})",
+    "ungrouped": "Grupsuz ({{count}})",
+    "ungroupedLabel": "Grupsuz",
+    "meta": "{{group}} · {{interval}} sn · eşik {{threshold}}",
+    "uptime": "{{value}} uptime",
+    "summary": {
+      "total": "Toplam"
+    },
+    "listError": "Cihaz listesi okunamadı",
+    "saveError": "Cihaz kaydedilemedi",
+    "deleteError": "Cihaz silinemedi",
+    "deleteTitle": "Cihazı sil",
+    "deleteMessage": "{{name}} kaydı silinecek. Bu işlem geri alınamaz."
+  },
+  "device": {
+    "add": "Cihaz ekle",
+    "edit": "Cihazı düzenle",
+    "delete": "Cihazı sil",
+    "form": {
+      "subtitle": "ICMP, TCP, HTTP/HTTPS ve SNMP cihazları kaydedilince otomatik kontrol edilir.",
+      "name": "Ad",
+      "namePlaceholder": "Gateway",
+      "host": "IP / Host",
+      "hostPlaceholder": "192.168.1.1",
+      "hostPlaceholderHttp": "example.com veya https://192.168.1.1",
+      "group": "Grup",
+      "checkType": "Kontrol tipi",
+      "port": "Port",
+      "path": "Yol (path)",
+      "pathHint": "Host’ta tam URL yoksa HTTPS + bu yol kullanılır. Örnek: /health",
+      "snmpVersion": "SNMP sürümü",
+      "snmpVersionOption": {
+        "v1": "SNMPv1",
+        "v2c": "SNMPv2c"
+      },
+      "community": "Community",
+      "communityHint": "Salt okunur community. Yalnızca bu bilgisayarda saklanır.",
+      "oid": "OID",
+      "oidHint": "Varsayılan sysUpTime (1.3.6.1.2.1.1.3.0). GET başarılıysa cihaz Çevrimiçi sayılır.",
+      "interval": "Aralık (sn)",
+      "threshold": "Başarısızlık eşiği",
+      "enabled": "İzleme için aktif"
+    },
+    "status": {
+      "online": "Çevrimiçi",
+      "offline": "Çevrimdışı",
+      "unreachable": "Ulaşılamıyor",
+      "degraded": "Kısmi sorun",
+      "unknown": "Bilinmiyor",
+      "disabled": "Kapalı",
+      "comingSoon": "Yakında"
+    }
+  },
+  "monitoring": {
+    "icmp": "ICMP Ping",
+    "tcp": "TCP Port",
+    "http": "HTTP",
+    "https": "HTTPS",
+    "httpHttps": "HTTP / HTTPS",
+    "snmp": "SNMP"
+  },
+  "groups": {
+    "title": "Gruplar",
+    "subtitle": "Cihazları ofis, sunucu veya site gibi gruplara ayırın.",
+    "name": "Grup adı",
+    "namePlaceholder": "Ofis ağı",
+    "description": "Açıklama (isteğe bağlı)",
+    "descriptionPlaceholder": "Kat 2 switch'ler",
+    "add": "Grup ekle",
+    "update": "Grubu güncelle",
+    "new": "Yeni grup",
+    "empty": "Henüz grup yok.",
+    "deviceCount": "{{count}} cihaz",
+    "saveError": "Grup kaydedilemedi",
+    "listError": "Grup listesi okunamadı",
+    "deleteTitle": "Grubu sil",
+    "deleteMessage": "{{name}} silinecek. Cihazlar gruptan çıkarılır, silinmez."
+  },
+  "settings": {
+    "title": "İzleme ayarları",
+    "subtitle": "Bu değerler yeni cihazlara varsayılan olarak uygulanır.",
+    "language": "Dil",
+    "languageHint": "Arayüz dili hemen değişir. Uygulamayı yeniden başlatmanız gerekmez.",
+    "interval": "İzleme aralığı (saniye)",
+    "intervalHint": "{{min}}–{{max}} saniye",
+    "threshold": "Başarısızlık eşiği",
+    "thresholdHint": "Üst üste bu kadar başarısız denemeden sonra cihaz Çevrimdışı olur.",
+    "applyToExisting": "Mevcut tüm cihazlara da uygula",
+    "saveError": "Ayarlar kaydedilemedi",
+    "general": "Genel",
+    "email": {
+      "title": "E-posta ayarları",
+      "subtitle": "Çevrimdışı ve kurtarma uyarıları SMTP sunucunuz üzerinden gider. Parola yalnızca bu bilgisayarda saklanır.",
+      "enabled": "E-posta bildirimlerini gönder",
+      "host": "SMTP sunucusu",
+      "hostPlaceholder": "smtp.example.com",
+      "port": "Port",
+      "secure": "SSL kullan (port 465)",
+      "username": "Kullanıcı adı",
+      "password": "Parola",
+      "passwordHint": "Kayıtlı parolayı korumak için boş bırakın.",
+      "from": "Kimden",
+      "to": "Kime",
+      "notifyDown": "Cihaz Çevrimdışı olunca bildir",
+      "notifyUp": "Cihaz yeniden Çevrimiçi olunca bildir",
+      "save": "E-posta ayarlarını kaydet",
+      "test": "Test e-postası gönder",
+      "testing": "Gönderiliyor...",
+      "testSuccess": "Test e-postası gönderildi.",
+      "saved": "E-posta ayarları kaydedildi."
+    },
+    "telegram": {
+      "title": "Telegram ayarları",
+      "subtitle": "Telegram bildirimlerini yapılandırın."
+    }
+  },
+  "history": {
+    "title": "Geçmiş",
+    "loading": "Geçmiş yükleniyor...",
+    "loadError": "Geçmiş okunamadı",
+    "uptime": "Uptime",
+    "avgResponse": "Ort. yanıt",
+    "minMax": "Min / Max",
+    "checks": "Kontrol",
+    "statusStrip": "Durum şeridi",
+    "responseTime": "Yanıt süresi",
+    "recentChecks": "Son kontroller",
+    "emptyRange": "Bu aralıkta henüz kontrol kaydı yok.",
+    "noLatency": "Bu aralıkta yanıt süresi ölçümü yok.",
+    "chartLabel": "Yanıt süresi grafiği",
+    "older": "Eski",
+    "newer": "Yeni",
+    "range": {
+      "1h": "1 saat",
+      "24h": "24 saat",
+      "7d": "7 gün"
+    }
+  },
+  "logs": {
+    "title": "Loglar",
+    "subtitle": "Uygulama olayları, cihaz değişiklikleri ve Çevrimiçi/Çevrimdışı geçişleri.",
+    "loading": "Loglar yükleniyor...",
+    "empty": "Bu filtrede log yok.",
+    "loadError": "Loglar okunamadı",
+    "clearError": "Loglar temizlenemedi",
+    "clearTitle": "Logları temizle",
+    "clearMessage": "Tüm log kayıtları silinecek. Bu işlem geri alınamaz.",
+    "filter": {
+      "all": "Tümü"
+    },
+    "level": {
+      "info": "Bilgi",
+      "warn": "Uyarı",
+      "error": "Hata"
+    },
+    "source": {
+      "app": "Uygulama",
+      "monitor": "İzleme",
+      "targets": "Cihazlar",
+      "groups": "Gruplar",
+      "settings": "Ayarlar",
+      "email": "E-posta"
+    }
+  },
+  "errors": {
+    "device": {
+      "nameRequired": "Cihaz adı zorunludur",
+      "nameTooLong": "Cihaz adı 100 karakteri geçemez",
+      "hostRequired": "IP adresi veya host zorunludur",
+      "hostTooLong": "Host 255 karakteri geçemez",
+      "hostSpaces": "Host içinde boşluk olamaz",
+      "invalidCheckType": "Geçersiz kontrol tipi",
+      "invalidCheckTypeRecord": "Geçersiz kontrol tipi kaydı bulundu",
+      "tcpPort": "TCP için 1 ile 65535 arasında bir port girin",
+      "httpPathTooLong": "HTTP yolu 200 karakteri geçemez",
+      "httpPathSpaces": "HTTP yolunda boşluk olamaz",
+      "httpProtocol": "Yalnızca HTTP ve HTTPS adresleri kullanılabilir",
+      "invalidHttpUrl": "Geçersiz HTTP adresi",
+      "notFound": "Cihaz bulunamadı",
+      "groupNotFound": "Seçilen grup bulunamadı",
+      "snmpPort": "SNMP için 1 ile 65535 arasında bir port girin",
+      "snmpCommunity": "Community alanı zorunludur",
+      "snmpCommunityTooLong": "Community 64 karakteri geçemez",
+      "snmpOid": "1.3.6.1.2.1.1.3.0 gibi sayısal bir OID girin",
+      "snmpOidTooLong": "OID 256 karakteri geçemez",
+      "snmpVersion": "Geçersiz SNMP sürümü"
+    },
+    "group": {
+      "nameRequired": "Grup adı zorunludur",
+      "nameTooLong": "Grup adı 80 karakteri geçemez",
+      "descriptionTooLong": "Grup açıklaması 200 karakteri geçemez",
+      "nameTaken": "Bu grup adı zaten kullanılıyor",
+      "notFound": "Grup bulunamadı"
+    },
+    "settings": {
+      "interval": "İzleme aralığı {{min}} ile {{max}} saniye arasında olmalıdır",
+      "threshold": "Başarısızlık eşiği {{min}} ile {{max}} arasında olmalıdır",
+      "invalidLocale": "Geçersiz dil"
+    },
+    "email": {
+      "incomplete": "E-posta açıkken SMTP sunucusu ve alıcı adresi zorunludur",
+      "invalidAddress": "Geçerli bir e-posta adresi girin",
+      "invalidPort": "SMTP portu 1 ile 65535 arasında olmalıdır",
+      "sendFailed": "E-posta gönderilemedi. SMTP ayarlarını kontrol edin.",
+      "notConfigured": "Test göndermeden önce SMTP ayarlarını kaydedin"
+    },
+    "history": {
+      "invalidRange": "Geçersiz geçmiş aralığı"
+    },
+    "logs": {
+      "invalidLevel": "Geçersiz log seviyesi"
+    },
+    "db": {
+      "notReady": "Veritabanı henüz başlatılmadı"
+    }
+  },
+  "probe": {
+    "replyReceived": "Yanıt alındı",
+    "hostNotFound": "Host bulunamadı",
+    "timeout": "Zaman aşımı",
+    "unreachable": "Hedefe ulaşılamadı",
+    "pingFailed": "Ping başarısız",
+    "invalidHost": "Geçersiz host",
+    "pingMissing": "ping komutu bulunamadı",
+    "invalidHostOrPort": "Geçersiz host veya port",
+    "portOpen": "Port {{port}} açık",
+    "portClosed": "Port {{port}} kapalı",
+    "connectTimeout": "Bağlantı zaman aşımı",
+    "tcpFailed": "TCP bağlantısı başarısız",
+    "tcpNoPort": "TCP portu tanımlı değil",
+    "unsupportedType": "Bu kontrol tipi henüz desteklenmiyor",
+    "invalidHttpUrl": "Geçersiz HTTP adresi",
+    "httpProtocol": "Yalnızca HTTP ve HTTPS desteklenir",
+    "httpTimeout": "HTTP zaman aşımı",
+    "httpStatus": "HTTP {{status}}",
+    "invalidRedirect": "Geçersiz yönlendirme",
+    "tooManyRedirects": "Çok fazla yönlendirme",
+    "httpFailed": "HTTP isteği başarısız",
+    "checkError": "Kontrol hatası",
+    "snmpNoConfig": "SNMP community veya OID eksik",
+    "snmpTimeout": "SNMP zaman aşımı",
+    "snmpFailed": "SNMP isteği başarısız",
+    "snmpOidError": "OID {{oid}} okunamadı",
+    "snmpOk": "{{oid}} = {{value}}"
+  },
+  "log": {
+    "empty": "Log kaydı",
+    "app": {
+      "started": "Uygulama başlatıldı, izleme çalışıyor ({{count}} cihaz)",
+      "stopping": "Uygulama kapatılıyor",
+      "cleared": "Log kayıtları temizlendi"
+    },
+    "device": {
+      "added": "Cihaz eklendi: {{name}}",
+      "updated": "Cihaz güncellendi: {{name}}",
+      "deleted": "Cihaz silindi: {{name}}"
+    },
+    "group": {
+      "added": "Grup eklendi: {{name}}",
+      "updated": "Grup güncellendi: {{name}}",
+      "deleted": "Grup silindi: {{name}}"
+    },
+    "settings": {
+      "updated": "Varsayılan ayarlar güncellendi ({{interval}} sn, eşik {{threshold}})",
+      "updatedApplied": "Varsayılan ayarlar güncellendi ve mevcut cihazlara uygulandı ({{interval}} sn, eşik {{threshold}})"
+    },
+    "monitor": {
+      "down": "{{name}} Çevrimdışı oldu",
+      "downWithReason": "{{name}} Çevrimdışı oldu: {{reason}}",
+      "up": "{{name}} tekrar Çevrimiçi",
+      "checkError": "{{name}} kontrol hatası: {{reason}}"
+    },
+    "email": {
+      "updated": "E-posta ayarları güncellendi",
+      "sentDown": "Çevrimdışı e-postası gönderildi: {{name}}",
+      "sentUp": "Kurtarma e-postası gönderildi: {{name}}",
+      "sentTest": "Test e-postası gönderildi",
+      "failed": "E-posta gönderilemedi: {{reason}}"
+    }
+  },
+  "email": {
+    "down": {
+      "subject": "{{name}} Çevrimdışı — Ping Alert V2",
+      "body": "Cihaz: {{name}}\nHost: {{host}}\nDurum: Çevrimdışı\nNeden: {{reason}}\nZaman: {{time}}"
+    },
+    "up": {
+      "subject": "{{name}} yeniden Çevrimiçi — Ping Alert V2",
+      "body": "Cihaz: {{name}}\nHost: {{host}}\nDurum: Çevrimiçi\nZaman: {{time}}"
+    },
+    "test": {
+      "subject": "Ping Alert V2 test e-postası",
+      "body": "E-posta bildirimleri çalışıyor."
+    }
+  },
+  "unit": {
+    "ms": "{{value}} ms"
+  }
+}

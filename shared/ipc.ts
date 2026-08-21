@@ -1,0 +1,21 @@
+export const IpcChannels = {
+  dbInfo: 'db:info',
+  settingsGetAll: 'settings:getAll',
+  settingsUpdate: 'settings:update',
+  targetsList: 'targets:list',
+  targetsCreate: 'targets:create',
+  targetsUpdate: 'targets:update',
+  targetsDelete: 'targets:delete',
+  groupsList: 'groups:list',
+  groupsCreate: 'groups:create',
+  groupsUpdate: 'groups:update',
+  groupsDelete: 'groups:delete',
+  checksHistory: 'checks:history',
+  logsList: 'logs:list',
+  logsClear: 'logs:clear',
+  logsAppend: 'logs:append',
+  settingsSetLocale: 'settings:setLocale',
+  emailUpdate: 'email:update',
+  emailTest: 'email:test',
+  monitorUpdate: 'monitor:update'
+} as const

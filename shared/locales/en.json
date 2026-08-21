@@ -1,0 +1,331 @@
+{
+  "app": {
+    "name": "Ping Alert V2"
+  },
+  "common": {
+    "cancel": "Cancel",
+    "close": "Close",
+    "save": "Save",
+    "saving": "Saving...",
+    "delete": "Delete",
+    "deleting": "Deleting...",
+    "edit": "Edit",
+    "clear": "Clear",
+    "or": "or",
+    "emDash": "—"
+  },
+  "nav": {
+    "devices": "Devices",
+    "groups": "Groups",
+    "settings": "Settings",
+    "logs": "Logs",
+    "addDevice": "Add device",
+    "history": "History"
+  },
+  "devices": {
+    "title": "Devices",
+    "subtitle": "Live status of ICMP, TCP, HTTP, and SNMP checks.",
+    "loading": "Loading devices...",
+    "emptyTitle": "Nothing to monitor yet",
+    "empty": "Add a device to start ICMP, TCP, HTTP, or SNMP checks. Status, uptime, and alerts appear here.",
+    "emptyGroup": "No devices in this group.",
+    "noMatch": "No devices match this search or filter.",
+    "searchPlaceholder": "Search by name or host",
+    "all": "All ({{count}})",
+    "ungrouped": "Ungrouped ({{count}})",
+    "ungroupedLabel": "Ungrouped",
+    "meta": "{{group}} · {{interval}} s · threshold {{threshold}}",
+    "uptime": "{{value}} uptime",
+    "summary": {
+      "total": "Total"
+    },
+    "listError": "Could not read the device list",
+    "saveError": "Could not save the device",
+    "deleteError": "Could not delete the device",
+    "deleteTitle": "Delete device",
+    "deleteMessage": "{{name}} will be deleted. This cannot be undone."
+  },
+  "device": {
+    "add": "Add device",
+    "edit": "Edit device",
+    "delete": "Delete device",
+    "form": {
+      "subtitle": "ICMP, TCP, HTTP/HTTPS, and SNMP devices are checked automatically after they are saved.",
+      "name": "Name",
+      "namePlaceholder": "Gateway",
+      "host": "IP / Host",
+      "hostPlaceholder": "192.168.1.1",
+      "hostPlaceholderHttp": "example.com or https://192.168.1.1",
+      "group": "Group",
+      "checkType": "Check type",
+      "port": "Port",
+      "path": "Path",
+      "pathHint": "If the host is not a full URL, HTTPS plus this path is used. Example: /health",
+      "snmpVersion": "SNMP version",
+      "snmpVersionOption": {
+        "v1": "SNMPv1",
+        "v2c": "SNMPv2c"
+      },
+      "community": "Community",
+      "communityHint": "Read-only community string. Stored only on this computer.",
+      "oid": "OID",
+      "oidHint": "Default is sysUpTime (1.3.6.1.2.1.1.3.0). A successful GET means Online.",
+      "interval": "Interval (sec)",
+      "threshold": "Failure threshold",
+      "enabled": "Enabled for monitoring"
+    },
+    "status": {
+      "online": "Online",
+      "offline": "Offline",
+      "unreachable": "Unreachable",
+      "degraded": "Degraded",
+      "unknown": "Unknown",
+      "disabled": "Disabled",
+      "comingSoon": "Coming soon"
+    }
+  },
+  "monitoring": {
+    "icmp": "ICMP Ping",
+    "tcp": "TCP Port",
+    "http": "HTTP",
+    "https": "HTTPS",
+    "httpHttps": "HTTP / HTTPS",
+    "snmp": "SNMP"
+  },
+  "groups": {
+    "title": "Groups",
+    "subtitle": "Organize devices into groups such as office, server, or site.",
+    "name": "Group name",
+    "namePlaceholder": "Office network",
+    "description": "Description (optional)",
+    "descriptionPlaceholder": "Floor 2 switches",
+    "add": "Add group",
+    "update": "Update group",
+    "new": "New group",
+    "empty": "No groups yet.",
+    "deviceCount": "{{count}} devices",
+    "saveError": "Could not save the group",
+    "listError": "Could not read the group list",
+    "deleteTitle": "Delete group",
+    "deleteMessage": "{{name}} will be deleted. Devices are ungrouped, not deleted."
+  },
+  "settings": {
+    "title": "Monitoring settings",
+    "subtitle": "These values are used as defaults for new devices.",
+    "language": "Language",
+    "languageHint": "The interface language changes immediately. The app does not need to restart.",
+    "interval": "Monitoring interval (seconds)",
+    "intervalHint": "{{min}}–{{max}} seconds",
+    "threshold": "Failure threshold",
+    "thresholdHint": "The device is marked Offline after this many consecutive failed checks.",
+    "applyToExisting": "Also apply to all existing devices",
+    "saveError": "Could not save settings",
+    "general": "General",
+    "email": {
+      "title": "Email settings",
+      "subtitle": "Offline and recovery alerts are sent through your SMTP server. The password is stored only on this computer.",
+      "enabled": "Send email notifications",
+      "host": "SMTP host",
+      "hostPlaceholder": "smtp.example.com",
+      "port": "Port",
+      "secure": "Use SSL (port 465)",
+      "username": "Username",
+      "password": "Password",
+      "passwordHint": "Leave blank to keep the saved password.",
+      "from": "From",
+      "to": "To",
+      "notifyDown": "Notify when a device goes Offline",
+      "notifyUp": "Notify when a device is Online again",
+      "save": "Save email settings",
+      "test": "Send test email",
+      "testing": "Sending...",
+      "testSuccess": "Test email sent.",
+      "saved": "Email settings saved."
+    },
+    "telegram": {
+      "title": "Telegram settings",
+      "subtitle": "Configure Telegram notifications."
+    }
+  },
+  "history": {
+    "title": "History",
+    "loading": "Loading history...",
+    "loadError": "Could not read history",
+    "uptime": "Uptime",
+    "avgResponse": "Avg. response",
+    "minMax": "Min / Max",
+    "checks": "Checks",
+    "statusStrip": "Status strip",
+    "responseTime": "Response time",
+    "recentChecks": "Recent checks",
+    "emptyRange": "No checks in this range yet.",
+    "noLatency": "No response-time samples in this range.",
+    "chartLabel": "Response time chart",
+    "older": "Older",
+    "newer": "Newer",
+    "range": {
+      "1h": "1 hour",
+      "24h": "24 hours",
+      "7d": "7 days"
+    }
+  },
+  "logs": {
+    "title": "Logs",
+    "subtitle": "App events, device changes, and Online/Offline transitions.",
+    "loading": "Loading logs...",
+    "empty": "No logs for this filter.",
+    "loadError": "Could not read logs",
+    "clearError": "Could not clear logs",
+    "clearTitle": "Clear logs",
+    "clearMessage": "All log records will be deleted. This cannot be undone.",
+    "filter": {
+      "all": "All"
+    },
+    "level": {
+      "info": "Info",
+      "warn": "Warning",
+      "error": "Error"
+    },
+    "source": {
+      "app": "App",
+      "monitor": "Monitoring",
+      "targets": "Devices",
+      "groups": "Groups",
+      "settings": "Settings",
+      "email": "Email"
+    }
+  },
+  "errors": {
+    "device": {
+      "nameRequired": "Device name is required",
+      "nameTooLong": "Device name cannot exceed 100 characters",
+      "hostRequired": "IP address or host is required",
+      "hostTooLong": "Host cannot exceed 255 characters",
+      "hostSpaces": "Host cannot contain spaces",
+      "invalidCheckType": "Invalid check type",
+      "invalidCheckTypeRecord": "An invalid check type record was found",
+      "tcpPort": "Enter a TCP port between 1 and 65535",
+      "httpPathTooLong": "HTTP path cannot exceed 200 characters",
+      "httpPathSpaces": "HTTP path cannot contain spaces",
+      "httpProtocol": "Only HTTP and HTTPS addresses can be used",
+      "invalidHttpUrl": "Invalid HTTP address",
+      "notFound": "Device not found",
+      "groupNotFound": "The selected group was not found",
+      "snmpPort": "Enter an SNMP port between 1 and 65535",
+      "snmpCommunity": "Community string is required",
+      "snmpCommunityTooLong": "Community string cannot exceed 64 characters",
+      "snmpOid": "Enter a numeric OID such as 1.3.6.1.2.1.1.3.0",
+      "snmpOidTooLong": "OID cannot exceed 256 characters",
+      "snmpVersion": "Invalid SNMP version"
+    },
+    "group": {
+      "nameRequired": "Group name is required",
+      "nameTooLong": "Group name cannot exceed 80 characters",
+      "descriptionTooLong": "Group description cannot exceed 200 characters",
+      "nameTaken": "This group name is already in use",
+      "notFound": "Group not found"
+    },
+    "settings": {
+      "interval": "Monitoring interval must be between {{min}} and {{max}} seconds",
+      "threshold": "Failure threshold must be between {{min}} and {{max}}",
+      "invalidLocale": "Invalid language"
+    },
+    "email": {
+      "incomplete": "SMTP host and recipient address are required when email is enabled",
+      "invalidAddress": "Enter a valid email address",
+      "invalidPort": "SMTP port must be between 1 and 65535",
+      "sendFailed": "The email could not be sent. Check the SMTP settings.",
+      "notConfigured": "Save complete SMTP settings before sending a test email"
+    },
+    "history": {
+      "invalidRange": "Invalid history range"
+    },
+    "logs": {
+      "invalidLevel": "Invalid log level"
+    },
+    "db": {
+      "notReady": "The database is not ready yet"
+    }
+  },
+  "probe": {
+    "replyReceived": "Reply received",
+    "hostNotFound": "Host not found",
+    "timeout": "Timed out",
+    "unreachable": "Target unreachable",
+    "pingFailed": "Ping failed",
+    "invalidHost": "Invalid host",
+    "pingMissing": "ping command not found",
+    "invalidHostOrPort": "Invalid host or port",
+    "portOpen": "Port {{port}} is open",
+    "portClosed": "Port {{port}} is closed",
+    "connectTimeout": "Connection timed out",
+    "tcpFailed": "TCP connection failed",
+    "tcpNoPort": "TCP port is not set",
+    "unsupportedType": "This check type is not supported yet",
+    "invalidHttpUrl": "Invalid HTTP address",
+    "httpProtocol": "Only HTTP and HTTPS are supported",
+    "httpTimeout": "HTTP timed out",
+    "httpStatus": "HTTP {{status}}",
+    "invalidRedirect": "Invalid redirect",
+    "tooManyRedirects": "Too many redirects",
+    "httpFailed": "HTTP request failed",
+    "checkError": "Check error",
+    "snmpNoConfig": "SNMP community or OID is missing",
+    "snmpTimeout": "SNMP timed out",
+    "snmpFailed": "SNMP request failed",
+    "snmpOidError": "OID {{oid}} could not be read",
+    "snmpOk": "{{oid}} = {{value}}"
+  },
+  "log": {
+    "empty": "Log entry",
+    "app": {
+      "started": "App started, monitoring is running ({{count}} devices)",
+      "stopping": "App is shutting down",
+      "cleared": "Log records were cleared"
+    },
+    "device": {
+      "added": "Device added: {{name}}",
+      "updated": "Device updated: {{name}}",
+      "deleted": "Device deleted: {{name}}"
+    },
+    "group": {
+      "added": "Group added: {{name}}",
+      "updated": "Group updated: {{name}}",
+      "deleted": "Group deleted: {{name}}"
+    },
+    "settings": {
+      "updated": "Default settings updated ({{interval}} s, threshold {{threshold}})",
+      "updatedApplied": "Default settings updated and applied to existing devices ({{interval}} s, threshold {{threshold}})"
+    },
+    "monitor": {
+      "down": "{{name}} went Offline",
+      "downWithReason": "{{name}} went Offline: {{reason}}",
+      "up": "{{name}} is Online again",
+      "checkError": "{{name}} check error: {{reason}}"
+    },
+    "email": {
+      "updated": "Email settings updated",
+      "sentDown": "Offline email sent: {{name}}",
+      "sentUp": "Recovery email sent: {{name}}",
+      "sentTest": "Test email sent",
+      "failed": "Email could not be sent: {{reason}}"
+    }
+  },
+  "email": {
+    "down": {
+      "subject": "{{name}} is Offline — Ping Alert V2",
+      "body": "Device: {{name}}\nHost: {{host}}\nStatus: Offline\nReason: {{reason}}\nTime: {{time}}"
+    },
+    "up": {
+      "subject": "{{name}} is Online again — Ping Alert V2",
+      "body": "Device: {{name}}\nHost: {{host}}\nStatus: Online\nTime: {{time}}"
+    },
+    "test": {
+      "subject": "Ping Alert V2 test email",
+      "body": "Email notifications are working."
+    }
+  },
+  "unit": {
+    "ms": "{{value}} ms"
+  }
+}

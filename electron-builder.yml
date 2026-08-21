@@ -1,0 +1,33 @@
+appId: com.pingalert.v2
+productName: Ping Alert V2
+copyright: Copyright © 2026 Ping Alert
+directories:
+  output: dist
+  buildResources: build
+files:
+  - out
+asar: true
+npmRebuild: false
+win:
+  icon: build/icon.ico
+  executableName: PingAlertV2
+  artifactName: PingAlertV2-Setup-${version}.${ext}
+  target:
+    - target: nsis
+      arch:
+        - x64
+nsis:
+  oneClick: false
+  perMachine: false
+  allowToChangeInstallationDirectory: true
+  allowElevation: true
+  createDesktopShortcut: always
+  createStartMenuShortcut: true
+  shortcutName: Ping Alert V2
+  uninstallDisplayName: Ping Alert V2
+  installerIcon: build/icon.ico
+  uninstallerIcon: build/icon.ico
+  deleteAppDataOnUninstall: false
+extraResources:
+  - from: build/icon.ico
+    to: icon.ico
