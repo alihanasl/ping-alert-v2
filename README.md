@@ -12,21 +12,6 @@ Kurulum imzalı değildir; Windows SmartScreen uyarı verebilir. **Yine de çal�
 
 Kullanıcı verisi (cihazlar, ayarlar, geçmiş): `%APPDATA%\ping-alert-v2\`
 
-## Geliştirme
-
-```bash
-npm install
-npm run dev
-```
-
-## Kurulum paketini derleme
-
-```bash
-npm run build:win
-```
-
-Çıktı: `dist/PingAlertV2-Setup-<sürüm>.exe`
-
 ## Lisans
 
 MIT
