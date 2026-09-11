@@ -112,8 +112,11 @@ export function reloadMonitoring(): void {
     }
   }
 
+  const staggerMs =
+    targets.length > 40 ? Math.max(25, Math.floor(8000 / targets.length)) : 150
+
   for (const [index, target] of targets.entries()) {
-    schedule(target.id, FIRST_CHECK_DELAY_MS + index * 150, () => {
+    schedule(target.id, FIRST_CHECK_DELAY_MS + index * staggerMs, () => {
       void checkTarget(target, currentRun)
     })
   }

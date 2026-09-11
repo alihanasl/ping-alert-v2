@@ -1,13 +1,15 @@
 import { ipcMain } from 'electron'
 import { IpcChannels } from '@shared/ipc'
-import type { EmailSettingsInput, GroupInput, HistoryRange, LogQuery, SettingsUpdateInput, TargetInput, UiLocale } from '@shared/types'
+import type { EmailSettingsInput, GroupInput, HistoryRange, HostsCreateInput, IpRangeInput, LogQuery, SettingsUpdateInput, TargetInput, UiLocale } from '@shared/types'
 import { isHistoryRange } from '@shared/types'
 import { i18nError } from '@shared/i18nMessage'
+import { expandIpv4Range, IP_RANGE_MAX } from '@shared/ipRange'
 import { isUiLocale } from '@shared/locales'
 import { writeAppLog } from '../appLog'
 import {
   clearLogs,
   createGroup,
+  createIcmpHosts,
   createTarget,
   deleteGroup,
   deleteTarget,
@@ -26,6 +28,7 @@ import {
 import { setMainLocale } from '../i18n'
 import { reloadMonitoring } from '../monitor/engine'
 import { sendTestEmail } from '../notify/email'
+import { cancelRangeScan, startRangeScan } from '../scan/rangeScan'
 
 export function registerIpcHandlers(): void {
   ipcMain.handle(IpcChannels.dbInfo, () => getDatabaseInfo())
@@ -108,4 +111,54 @@ export function registerIpcHandlers(): void {
     return settings
   })
   ipcMain.handle(IpcChannels.emailTest, () => sendTestEmail())
+  ipcMain.handle(IpcChannels.scanStart, (event, input: IpRangeInput) => {
+    if (!input?.start || !input?.end) {
+      throw rangeError('invalid')
+    }
+
+    const range = expandIpv4Range(input.start, input.end)
+    if (!range.ok) {
+      throw rangeError(range.error)
+    }
+
+    const scanId = startRangeScan(range.hosts, (update) => {
+      if (!event.sender.isDestroyed()) {
+        event.sender.send(IpcChannels.scanProgress, update)
+      }
+    })
+
+    return { scanId, total: range.hosts.length, hosts: range.hosts }
+  })
+  ipcMain.handle(IpcChannels.scanCancel, (_event, scanId: string) => {
+    if (typeof scanId === 'string' && scanId) {
+      cancelRangeScan(scanId)
+    }
+  })
+  ipcMain.handle(IpcChannels.targetsCreateHosts, (_event, input: HostsCreateInput) => {
+    if (!input || !Array.isArray(input.hosts)) {
+      throw i18nError('errors.scan.empty')
+    }
+
+    const result = createIcmpHosts(input)
+    if (result.created > 0) {
+      reloadMonitoring()
+      writeAppLog('info', 'targets', 'log.device.rangeAdded', {
+        created: result.created,
+        skipped: result.skipped
+      })
+    }
+    return result
+  })
+}
+
+function rangeError(error: 'invalid' | 'tooLarge' | 'empty'): Error {
+  if (error === 'tooLarge') {
+    return i18nError('errors.scan.tooLarge', { max: IP_RANGE_MAX })
+  }
+
+  if (error === 'empty') {
+    return i18nError('errors.scan.empty')
+  }
+
+  return i18nError('errors.scan.invalidRange')
 }

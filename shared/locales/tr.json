@@ -20,6 +20,8 @@
     "settings": "Ayarlar",
     "logs": "Loglar",
     "addDevice": "Cihaz ekle",
+    "ipScan": "IP tara",
+    "addRange": "Aralıkla ekle",
     "history": "Geçmiş"
   },
   "devices": {
@@ -218,6 +220,11 @@
       "snmpOidTooLong": "OID 256 karakteri geçemez",
       "snmpVersion": "Geçersiz SNMP sürümü"
     },
+    "scan": {
+      "invalidRange": "Geçerli bir IPv4 aralığı girin. Örnek: 10.10.10.1 – 10.10.10.254",
+      "tooLarge": "Aralık en fazla {{max}} adres olabilir",
+      "empty": "Eklenecek adres seçilmedi"
+    },
     "group": {
       "nameRequired": "Grup adı zorunludur",
       "nameTooLong": "Grup adı 80 karakteri geçemez",
@@ -286,7 +293,8 @@
     "device": {
       "added": "Cihaz eklendi: {{name}}",
       "updated": "Cihaz güncellendi: {{name}}",
-      "deleted": "Cihaz silindi: {{name}}"
+      "deleted": "Cihaz silindi: {{name}}",
+      "rangeAdded": "IP aralığından {{created}} cihaz eklendi ({{skipped}} zaten vardı)"
     },
     "group": {
       "added": "Grup eklendi: {{name}}",
@@ -324,6 +332,37 @@
       "subject": "Ping Alert V2 test e-postası",
       "body": "E-posta bildirimleri çalışıyor."
     }
+  },
+  "scan": {
+    "title": "IP tara",
+    "subtitle": "Aralıktaki her adrese bir kez ping atılır. Çevrimiçi ve çevrimdışı sonuçlar burada kalır; istediğini kaldırıp seçtiklerini cihaz olarak ekleyebilirsin.",
+    "start": "Başlangıç IP",
+    "end": "Bitiş IP",
+    "hint": "En fazla {{max}} adres. Örnek: 10.10.10.1 – 10.10.10.254",
+    "startScan": "Taramayı başlat",
+    "scanning": "Taranıyor...",
+    "stop": "Durdur",
+    "progress": "{{completed}} / {{total}}",
+    "pending": "{{count}} bekliyor",
+    "online": "Çevrimiçi",
+    "offline": "Çevrimdışı",
+    "emptyOnline": "Henüz çevrimiçi IP yok.",
+    "emptyOffline": "Henüz çevrimdışı IP yok.",
+    "remove": "Kaldır",
+    "selectOnline": "Çevrimiçileri seç",
+    "addSelected": "Seçilenleri ekle",
+    "adding": "Ekleniyor...",
+    "added": "Eklendi",
+    "addResult": "{{created}} cihaz eklendi, {{skipped}} zaten listede vardı.",
+    "group": "Grup",
+    "rangeTitle": "IP aralığı ile cihaz ekle",
+    "rangeSubtitle": "Aralıktaki her IP ayrı cihaz olarak oluşturulur ve ping atılmaya başlar. 10.10.10.1, 10.10.10.2, 10.10.10.3 şeklinde alt alta görünür.",
+    "rangeCount": "{{count}} cihaz oluşturulacak",
+    "create": "Cihazları oluştur ve ping at",
+    "creating": "Oluşturuluyor...",
+    "deselectAll": "Tümünü kaldır",
+    "selectAll": "Tümünü seç",
+    "alreadyMonitoring": "Zaten izleniyor"
   },
   "unit": {
     "ms": "{{value}} ms"

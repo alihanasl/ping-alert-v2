@@ -20,6 +20,8 @@
     "settings": "Settings",
     "logs": "Logs",
     "addDevice": "Add device",
+    "ipScan": "Scan IPs",
+    "addRange": "Add range",
     "history": "History"
   },
   "devices": {
@@ -218,6 +220,11 @@
       "snmpOidTooLong": "OID cannot exceed 256 characters",
       "snmpVersion": "Invalid SNMP version"
     },
+    "scan": {
+      "invalidRange": "Enter a valid IPv4 range. Example: 10.10.10.1 – 10.10.10.254",
+      "tooLarge": "A range can include at most {{max}} addresses",
+      "empty": "No addresses selected"
+    },
     "group": {
       "nameRequired": "Group name is required",
       "nameTooLong": "Group name cannot exceed 80 characters",
@@ -286,7 +293,8 @@
     "device": {
       "added": "Device added: {{name}}",
       "updated": "Device updated: {{name}}",
-      "deleted": "Device deleted: {{name}}"
+      "deleted": "Device deleted: {{name}}",
+      "rangeAdded": "{{created}} devices added from an IP range ({{skipped}} already existed)"
     },
     "group": {
       "added": "Group added: {{name}}",
@@ -324,6 +332,37 @@
       "subject": "Ping Alert V2 test email",
       "body": "Email notifications are working."
     }
+  },
+  "scan": {
+    "title": "Scan IPs",
+    "subtitle": "Each address in the range is pinged once. Online and offline results stay here so you can remove any and add the ones you want.",
+    "start": "Start IP",
+    "end": "End IP",
+    "hint": "Up to {{max}} addresses. Example: 10.10.10.1 – 10.10.10.254",
+    "startScan": "Start scan",
+    "scanning": "Scanning...",
+    "stop": "Stop",
+    "progress": "{{completed}} / {{total}}",
+    "pending": "{{count}} waiting",
+    "online": "Online",
+    "offline": "Offline",
+    "emptyOnline": "No online IPs yet.",
+    "emptyOffline": "No offline IPs yet.",
+    "remove": "Remove",
+    "selectOnline": "Select online",
+    "addSelected": "Add selected",
+    "adding": "Adding...",
+    "added": "Added",
+    "addResult": "{{created}} devices added, {{skipped}} were already in the list.",
+    "group": "Group",
+    "rangeTitle": "Add devices from IP range",
+    "rangeSubtitle": "Each IP becomes its own device and pinging starts immediately. They appear one under another: 10.10.10.1, 10.10.10.2, 10.10.10.3.",
+    "rangeCount": "{{count}} devices will be created",
+    "create": "Create devices and start pinging",
+    "creating": "Creating...",
+    "deselectAll": "Clear all",
+    "selectAll": "Select all",
+    "alreadyMonitoring": "Already monitored"
   },
   "unit": {
     "ms": "{{value}} ms"

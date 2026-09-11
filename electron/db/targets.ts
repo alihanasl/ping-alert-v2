@@ -1,7 +1,8 @@
 import { randomUUID } from 'node:crypto'
 import type { DatabaseSync } from 'node:sqlite'
 import { i18nError } from '@shared/i18nMessage'
-import type { Target, TargetConfig, TargetInput } from '@shared/types'
+import { IP_RANGE_MAX, ipv4ToInt } from '@shared/ipRange'
+import type { BulkCreateResult, Target, TargetConfig, TargetInput } from '@shared/types'
 import { isCheckType, isSnmpVersion, SNMP_DEFAULTS } from '@shared/types'
 import { groupExists } from './groups'
 import { normalizeFailureThreshold, normalizeIntervalSeconds } from './monitorLimits'
@@ -314,4 +315,78 @@ export function updateTarget(database: DatabaseSync, id: string, input: TargetIn
 export function deleteTarget(database: DatabaseSync, id: string): void {
   getById(database, id)
   database.prepare('DELETE FROM targets WHERE id = ?').run(id)
+}
+
+export function createIcmpHosts(
+  database: DatabaseSync,
+  hosts: string[],
+  groupId: string | null,
+  intervalSeconds: number,
+  failureThreshold: number
+): BulkCreateResult {
+  const uniqueHosts: string[] = []
+  const seen = new Set<string>()
+
+  for (const host of hosts) {
+    const trimmed = host.trim()
+    if (ipv4ToInt(trimmed) === null) {
+      throw i18nError('errors.scan.invalidRange')
+    }
+
+    if (!seen.has(trimmed)) {
+      seen.add(trimmed)
+      uniqueHosts.push(trimmed)
+    }
+  }
+
+  if (uniqueHosts.length === 0) {
+    throw i18nError('errors.scan.empty')
+  }
+
+  if (uniqueHosts.length > IP_RANGE_MAX) {
+    throw i18nError('errors.scan.tooLarge', { max: IP_RANGE_MAX })
+  }
+
+  const resolvedGroupId = resolveGroupId(database, groupId)
+  const existingHosts = new Set(
+    listTargets(database)
+      .filter((target) => target.checkType === 'icmp')
+      .map((target) => target.host)
+  )
+  const interval = normalizeIntervalSeconds(intervalSeconds)
+  const threshold = normalizeFailureThreshold(failureThreshold)
+  const timestamp = nowIso()
+  const insert = database.prepare(
+    `
+    INSERT INTO targets (
+      id, group_id, name, host, check_type, config,
+      interval_seconds, failure_threshold, enabled,
+      created_at, updated_at
+    ) VALUES (?, ?, ?, ?, 'icmp', '{}', ?, ?, 1, ?, ?)
+  `
+  )
+
+  let created = 0
+  let skipped = 0
+
+  database.exec('BEGIN')
+  try {
+    for (const host of uniqueHosts) {
+      if (existingHosts.has(host)) {
+        skipped += 1
+        continue
+      }
+
+      insert.run(randomUUID(), resolvedGroupId, host, host, interval, threshold, timestamp, timestamp)
+      existingHosts.add(host)
+      created += 1
+    }
+
+    database.exec('COMMIT')
+  } catch (error) {
+    database.exec('ROLLBACK')
+    throw error
+  }
+
+  return { created, skipped }
 }
