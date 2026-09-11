@@ -5,8 +5,11 @@ import type {
   EmailSettingsInput,
   GroupInput,
   HistoryRange,
+  HostsCreateInput,
+  IpRangeInput,
   LogQuery,
   PingAlertApi,
+  ScanProgress,
   SettingsUpdateInput,
   TargetInput,
   TargetStatusUpdate,
@@ -42,6 +45,10 @@ const api: PingAlertApi = {
     ipcRenderer.invoke(IpcChannels.checksHistory, targetId, range),
   listLogs: (query?: LogQuery) => ipcRenderer.invoke(IpcChannels.logsList, query),
   clearLogs: () => ipcRenderer.invoke(IpcChannels.logsClear),
+  startIpScan: (input: IpRangeInput) => ipcRenderer.invoke(IpcChannels.scanStart, input),
+  cancelIpScan: (scanId: string) => ipcRenderer.invoke(IpcChannels.scanCancel, scanId),
+  createTargetsFromHosts: (input: HostsCreateInput) =>
+    ipcRenderer.invoke(IpcChannels.targetsCreateHosts, input),
   onTargetStatus: (callback: (update: TargetStatusUpdate) => void) => {
     const listener = (_event: unknown, update: TargetStatusUpdate): void => {
       callback(update)
@@ -62,6 +69,17 @@ const api: PingAlertApi = {
 
     return () => {
       ipcRenderer.removeListener(IpcChannels.logsAppend, listener)
+    }
+  },
+  onScanProgress: (callback: (update: ScanProgress) => void) => {
+    const listener = (_event: unknown, update: ScanProgress): void => {
+      callback(update)
+    }
+
+    ipcRenderer.on(IpcChannels.scanProgress, listener)
+
+    return () => {
+      ipcRenderer.removeListener(IpcChannels.scanProgress, listener)
     }
   }
 }

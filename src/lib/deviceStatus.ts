@@ -40,7 +40,7 @@ export function compareDashboardTargets(left: Target, right: Target, locale: str
     return rankDiff
   }
 
-  return left.name.localeCompare(right.name, locale, { sensitivity: 'base' })
+  return left.name.localeCompare(right.name, locale, { numeric: true, sensitivity: 'base' })
 }
 
 export function countDeviceStatuses(targets: Target[]): Record<DeviceUiStatus | 'total', number> {

@@ -32,8 +32,12 @@ export interface PingAlertApi {
   getTargetHistory: (targetId: string, range: HistoryRange) => Promise<TargetHistory>
   listLogs: (query?: LogQuery) => Promise<AppLog[]>
   clearLogs: () => Promise<void>
+  startIpScan: (input: IpRangeInput) => Promise<ScanStartResult>
+  cancelIpScan: (scanId: string) => Promise<void>
+  createTargetsFromHosts: (input: HostsCreateInput) => Promise<BulkCreateResult>
   onTargetStatus: (callback: (update: TargetStatusUpdate) => void) => () => void
   onAppLog: (callback: (log: AppLog) => void) => () => void
+  onScanProgress: (callback: (update: ScanProgress) => void) => () => void
 }
 
 export interface DatabaseInfo {
@@ -237,4 +241,36 @@ export interface LogQuery {
 
 export function isLogLevel(value: string): value is LogLevel {
   return (LOG_LEVELS as readonly string[]).includes(value)
+}
+
+export interface IpRangeInput {
+  start: string
+  end: string
+}
+
+export interface ScanStartResult {
+  scanId: string
+  total: number
+  hosts: string[]
+}
+
+export interface ScanProgress {
+  scanId: string
+  host: string | null
+  status: 'up' | 'down' | null
+  responseTimeMs: number | null
+  completed: number
+  total: number
+  finished: boolean
+  cancelled: boolean
+}
+
+export interface HostsCreateInput {
+  hosts: string[]
+  groupId: string | null
+}
+
+export interface BulkCreateResult {
+  created: number
+  skipped: number
 }

@@ -1,5 +1,5 @@
 import { DEFAULT_SETTINGS } from '@shared/types'
-import type { AppLog, AppSettings, EmailSettingsInput, Group, GroupInput, HistoryRange, LogQuery, SettingsUpdateInput, Target, TargetInput, UiLocale } from '@shared/types'
+import type { AppLog, AppSettings, BulkCreateResult, EmailSettingsInput, Group, GroupInput, HistoryRange, HostsCreateInput, LogQuery, SettingsUpdateInput, Target, TargetInput, UiLocale } from '@shared/types'
 import { attachMonitorState, getTargetHistory as readTargetHistory } from './checks'
 import { getDatabase } from './connection'
 import {
@@ -10,6 +10,7 @@ import {
 } from './groups'
 import { getAppSettings as readAppSettings, updateAppSettings as saveAppSettings, updateEmailSettings as saveEmailSettings, updateUiLocale as saveUiLocale } from './settings'
 import {
+  createIcmpHosts as insertIcmpHosts,
   createTarget as insertTarget,
   deleteTarget as removeTarget,
   listTargets as readTargets,
@@ -52,6 +53,17 @@ export function listTargets(): Target[] {
 
 export function createTarget(input: TargetInput): Target {
   return withMonitorState(insertTarget(getDatabase(), input))
+}
+
+export function createIcmpHosts(input: HostsCreateInput): BulkCreateResult {
+  const settings = getAppSettings()
+  return insertIcmpHosts(
+    getDatabase(),
+    input.hosts,
+    input.groupId,
+    settings.monitoring_interval_seconds,
+    settings.failure_threshold
+  )
 }
 
 export function updateTarget(id: string, input: TargetInput): Target {

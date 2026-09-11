@@ -8,6 +8,8 @@ import { DeviceRow } from '../components/DeviceRow'
 import { FilterChip } from '../components/FilterChip'
 import { GroupsModal } from '../components/GroupsModal'
 import { HistoryModal } from '../components/HistoryModal'
+import { IpRangeAddModal } from '../components/IpRangeAddModal'
+import { IpScanModal } from '../components/IpScanModal'
 import { LogsModal } from '../components/LogsModal'
 import { SettingsModal } from '../components/SettingsModal'
 import { SummaryCards } from '../components/SummaryCards'
@@ -38,6 +40,8 @@ export function DevicesPage() {
   const [search, setSearch] = useState('')
   const [formOpen, setFormOpen] = useState(false)
   const [settingsOpen, setSettingsOpen] = useState(false)
+  const [scanOpen, setScanOpen] = useState(false)
+  const [rangeOpen, setRangeOpen] = useState(false)
   const [groupsOpen, setGroupsOpen] = useState(false)
   const [logsOpen, setLogsOpen] = useState(false)
   const [editing, setEditing] = useState<Target | null>(null)
@@ -285,6 +289,20 @@ export function DevicesPage() {
             </button>
             <button
               type="button"
+              onClick={() => setScanOpen(true)}
+              className="rounded-lg border border-slate-700/80 bg-slate-900/50 px-4 py-2 text-sm text-slate-200 hover:bg-slate-800"
+            >
+              {t('nav.ipScan')}
+            </button>
+            <button
+              type="button"
+              onClick={() => setRangeOpen(true)}
+              className="rounded-lg border border-teal-500/40 bg-slate-900/50 px-4 py-2 text-sm text-teal-200 hover:bg-slate-800"
+            >
+              {t('nav.addRange')}
+            </button>
+            <button
+              type="button"
               onClick={openCreate}
               className="rounded-lg bg-teal-500 px-4 py-2 text-sm font-medium text-slate-950 hover:bg-teal-400"
             >
@@ -440,6 +458,27 @@ export function DevicesPage() {
       ) : null}
 
       {logsOpen ? <LogsModal onClose={() => setLogsOpen(false)} /> : null}
+
+      {scanOpen ? (
+        <IpScanModal
+          groups={groups}
+          knownHosts={targets.filter((target) => target.checkType === 'icmp').map((target) => target.host)}
+          onClose={() => setScanOpen(false)}
+          onAdded={async () => {
+            await Promise.all([refresh(), refreshGroups()])
+          }}
+        />
+      ) : null}
+
+      {rangeOpen ? (
+        <IpRangeAddModal
+          groups={groups}
+          onClose={() => setRangeOpen(false)}
+          onCreated={async () => {
+            await Promise.all([refresh(), refreshGroups()])
+          }}
+        />
+      ) : null}
 
       {historyTarget ? (
         <HistoryModal target={historyTarget} onClose={() => setHistoryTarget(null)} />
