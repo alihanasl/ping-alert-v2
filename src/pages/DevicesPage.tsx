@@ -1,6 +1,13 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import type { AppSettings, EmailSettingsInput, SettingsUpdateInput, Target, TargetInput } from '@shared/types'
+import type {
+  AppSettings,
+  EmailSettingsInput,
+  SettingsUpdateInput,
+  SnmpSettingsInput,
+  Target,
+  TargetInput
+} from '@shared/types'
 import { DEFAULT_SETTINGS } from '@shared/types'
 import { ConfirmDialog } from '../components/ConfirmDialog'
 import { DeviceFormModal } from '../components/DeviceFormModal'
@@ -53,6 +60,9 @@ export function DevicesPage() {
   const [emailTesting, setEmailTesting] = useState(false)
   const [emailError, setEmailError] = useState<string | null>(null)
   const [emailNotice, setEmailNotice] = useState<string | null>(null)
+  const [snmpSaving, setSnmpSaving] = useState(false)
+  const [snmpError, setSnmpError] = useState<string | null>(null)
+  const [snmpNotice, setSnmpNotice] = useState<string | null>(null)
   const [pendingDelete, setPendingDelete] = useState<Target | null>(null)
   const [historyTarget, setHistoryTarget] = useState<Target | null>(null)
   const [deleting, setDeleting] = useState(false)
@@ -169,6 +179,22 @@ export function DevicesPage() {
       setEmailError(tError(saveError, 'settings.saveError'))
     } finally {
       setEmailSaving(false)
+    }
+  }
+
+  async function handleSnmpSubmit(input: SnmpSettingsInput): Promise<void> {
+    setSnmpSaving(true)
+    setSnmpError(null)
+    setSnmpNotice(null)
+
+    try {
+      const nextSettings = await window.pingAlert.updateSnmpSettings(input)
+      setSettings(nextSettings)
+      setSnmpNotice(t('settings.snmp.saved'))
+    } catch (saveError) {
+      setSnmpError(tError(saveError, 'settings.saveError'))
+    } finally {
+      setSnmpSaving(false)
     }
   }
 
@@ -418,6 +444,7 @@ export function DevicesPage() {
           groups={groups}
           defaultIntervalSeconds={settings.monitoring_interval_seconds}
           defaultFailureThreshold={settings.failure_threshold}
+          snmpCommunityConfigured={settings.snmp.communitySet}
           saving={saving}
           error={formError}
           onClose={closeForm}
@@ -443,17 +470,23 @@ export function DevicesPage() {
           emailError={emailError}
           emailNotice={emailNotice}
           onClose={() => {
-            if (!settingsSaving && !emailSaving && !emailTesting) {
+            if (!settingsSaving && !emailSaving && !emailTesting && !snmpSaving) {
               setSettingsOpen(false)
               setSettingsError(null)
               setEmailError(null)
               setEmailNotice(null)
+              setSnmpError(null)
+              setSnmpNotice(null)
             }
           }}
           onSubmit={handleSettingsSubmit}
           onSettingsChange={setSettings}
           onEmailSubmit={handleEmailSubmit}
           onEmailTest={handleEmailTest}
+          snmpSaving={snmpSaving}
+          snmpError={snmpError}
+          snmpNotice={snmpNotice}
+          onSnmpSubmit={handleSnmpSubmit}
         />
       ) : null}
 
@@ -462,7 +495,9 @@ export function DevicesPage() {
       {scanOpen ? (
         <IpScanModal
           groups={groups}
-          knownHosts={targets.filter((target) => target.checkType === 'icmp').map((target) => target.host)}
+          knownHosts={targets
+            .filter((target) => target.checkType === 'snmp' || target.checkType === 'icmp')
+            .map((target) => target.host)}
           onClose={() => setScanOpen(false)}
           onAdded={async () => {
             await Promise.all([refresh(), refreshGroups()])

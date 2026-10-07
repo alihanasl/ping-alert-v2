@@ -6,9 +6,9 @@ import i18n from '../i18n'
 export function isMonitoredCheckType(checkType: CheckType): boolean {
   return (
     checkType === 'icmp' ||
+    checkType === 'snmp' ||
     checkType === 'tcp' ||
-    checkType === 'http' ||
-    checkType === 'snmp'
+    checkType === 'http'
   )
 }
 
@@ -20,7 +20,7 @@ export function checkTypeLabelKey(checkType: CheckType): string {
   return `monitoring.${checkType}`
 }
 
-export const CHECK_TYPE_OPTIONS = CHECK_TYPES.map((value) => ({
+export const CHECK_TYPE_OPTIONS = CHECK_TYPES.filter((value) => value !== 'icmp').map((value) => ({
   value,
   labelKey: checkTypeLabelKey(value)
 }))

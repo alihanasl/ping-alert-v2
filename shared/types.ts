@@ -21,6 +21,8 @@ export interface PingAlertApi {
   setLocale: (locale: UiLocale) => Promise<AppSettings>
   updateEmailSettings: (input: EmailSettingsInput) => Promise<AppSettings>
   testEmail: () => Promise<void>
+  updateSnmpSettings: (input: SnmpSettingsInput) => Promise<AppSettings>
+  testSnmp: (input: SnmpTestInput) => Promise<SnmpTestResult>
   listTargets: () => Promise<Target[]>
   createTarget: (input: TargetInput) => Promise<Target>
   updateTarget: (id: string, input: TargetInput) => Promise<Target>
@@ -53,6 +55,7 @@ export interface AppSettings {
   ui_locale: UiLocale
   last_opened_at: string | null
   email: EmailSettings
+  snmp: SnmpSettings
 }
 
 export interface EmailSettings {
@@ -94,19 +97,76 @@ export const DEFAULT_EMAIL_SETTINGS: EmailSettings = {
   passwordSet: false
 }
 
+export const SNMP_VERSIONS = ['1', '2c'] as const
+
+export type SnmpVersion = (typeof SNMP_VERSIONS)[number]
+
+export function isSnmpVersion(value: string): value is SnmpVersion {
+  return (SNMP_VERSIONS as readonly string[]).includes(value)
+}
+
+export interface SnmpSettings {
+  snmpVersion: SnmpVersion
+  port: number
+  timeoutMs: number
+  retryCount: number
+  communitySet: boolean
+}
+
+export interface SnmpSettingsInput {
+  snmpVersion: SnmpVersion
+  port: number
+  timeoutMs: number
+  retryCount: number
+  community: string
+}
+
+export interface SnmpTestInput {
+  host: string
+  port?: number
+  community?: string
+  snmpVersion?: SnmpVersion
+}
+
+export type SnmpTestResult =
+  | {
+      ok: true
+      sysUpTime: string
+      sysName: string | null
+    }
+  | {
+      ok: false
+      messageKey: string
+    }
+
+export const DEFAULT_SNMP_SETTINGS: SnmpSettings = {
+  snmpVersion: '2c',
+  port: 161,
+  timeoutMs: 2000,
+  retryCount: 1,
+  communitySet: false
+}
+
 export const DEFAULT_SETTINGS: Pick<
   AppSettings,
-  'monitoring_interval_seconds' | 'failure_threshold' | 'ui_locale' | 'email'
+  'monitoring_interval_seconds' | 'failure_threshold' | 'ui_locale' | 'email' | 'snmp'
 > = {
   monitoring_interval_seconds: 60,
   failure_threshold: 3,
   ui_locale: 'en',
-  email: DEFAULT_EMAIL_SETTINGS
+  email: DEFAULT_EMAIL_SETTINGS,
+  snmp: DEFAULT_SNMP_SETTINGS
 }
 
 export const MONITOR_LIMITS = {
   intervalSeconds: { min: 5, max: 3600 },
   failureThreshold: { min: 1, max: 20 }
+} as const
+
+export const SNMP_LIMITS = {
+  port: { min: 1, max: 65535 },
+  timeoutMs: { min: 500, max: 30000 },
+  retryCount: { min: 0, max: 5 }
 } as const
 
 export interface TargetConfig {
@@ -117,19 +177,11 @@ export interface TargetConfig {
   snmpVersion?: SnmpVersion
 }
 
-export const SNMP_VERSIONS = ['1', '2c'] as const
-
-export type SnmpVersion = (typeof SNMP_VERSIONS)[number]
-
 export const SNMP_DEFAULTS = {
   port: 161,
-  community: 'public',
   oid: '1.3.6.1.2.1.1.3.0',
+  sysNameOid: '1.3.6.1.2.1.1.5.0',
   snmpVersion: '2c' as SnmpVersion
-}
-
-export function isSnmpVersion(value: string): value is SnmpVersion {
-  return (SNMP_VERSIONS as readonly string[]).includes(value)
 }
 
 export interface TargetInput {

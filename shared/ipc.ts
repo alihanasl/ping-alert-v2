@@ -17,6 +17,8 @@ export const IpcChannels = {
   settingsSetLocale: 'settings:setLocale',
   emailUpdate: 'email:update',
   emailTest: 'email:test',
+  snmpUpdate: 'snmp:update',
+  snmpTest: 'snmp:test',
   scanStart: 'scan:start',
   scanCancel: 'scan:cancel',
   scanProgress: 'scan:progress',

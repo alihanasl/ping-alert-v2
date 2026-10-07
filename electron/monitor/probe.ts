@@ -1,26 +1,43 @@
+import type { DatabaseSync } from 'node:sqlite'
 import { encodeI18nMessage } from '@shared/i18nMessage'
 import type { Target } from '@shared/types'
-import { SNMP_DEFAULTS } from '@shared/types'
 import { httpCheck } from './http'
-import { icmpPing } from './icmp'
 import type { ProbeResult } from './result'
+import { resolveSnmpForTarget } from './snmpConfig'
 import { snmpCheck } from './snmp'
 import { tcpCheck } from './tcp'
+
+function isSnmpReachabilityCheck(target: Target): boolean {
+  return target.checkType === 'snmp' || target.checkType === 'icmp'
+}
 
 export function isScheduledCheck(target: Target): boolean {
   return (
     target.enabled &&
-    (target.checkType === 'icmp' ||
+    (isSnmpReachabilityCheck(target) ||
       target.checkType === 'tcp' ||
-      target.checkType === 'http' ||
-      target.checkType === 'snmp')
+      target.checkType === 'http')
   )
 }
 
-export async function probeTarget(target: Target, timeoutMs: number): Promise<ProbeResult> {
-  if (target.checkType === 'icmp') {
-    return icmpPing(target.host, timeoutMs)
+export async function probeTarget(
+  database: DatabaseSync,
+  target: Target
+): Promise<ProbeResult> {
+  if (isSnmpReachabilityCheck(target)) {
+    const config = resolveSnmpForTarget(database, target)
+    if (!config) {
+      return {
+        ok: false,
+        responseTimeMs: null,
+        message: encodeI18nMessage('probe.snmpNoCommunity')
+      }
+    }
+
+    return snmpCheck(target.host, config)
   }
+
+  const timeoutMs = 2000
 
   if (target.checkType === 'tcp') {
     const port = target.config.port
@@ -37,29 +54,6 @@ export async function probeTarget(target: Target, timeoutMs: number): Promise<Pr
 
   if (target.checkType === 'http') {
     return httpCheck(target.host, target.config.path, Math.max(timeoutMs, 5000))
-  }
-
-  if (target.checkType === 'snmp') {
-    const community = target.config.community?.trim()
-    const oid = target.config.oid?.trim()
-    if (!community || !oid) {
-      return {
-        ok: false,
-        responseTimeMs: null,
-        message: encodeI18nMessage('probe.snmpNoConfig')
-      }
-    }
-
-    return snmpCheck(
-      target.host,
-      {
-        port: target.config.port ?? SNMP_DEFAULTS.port,
-        community,
-        oid,
-        snmpVersion: target.config.snmpVersion ?? SNMP_DEFAULTS.snmpVersion
-      },
-      Math.max(timeoutMs, 3000)
-    )
   }
 
   return {

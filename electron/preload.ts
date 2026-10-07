@@ -11,6 +11,9 @@ import type {
   PingAlertApi,
   ScanProgress,
   SettingsUpdateInput,
+  SnmpSettingsInput,
+  SnmpTestInput,
+  SnmpTestResult,
   TargetInput,
   TargetStatusUpdate,
   UiLocale
@@ -31,6 +34,10 @@ const api: PingAlertApi = {
   updateEmailSettings: (input: EmailSettingsInput) =>
     ipcRenderer.invoke(IpcChannels.emailUpdate, input),
   testEmail: () => ipcRenderer.invoke(IpcChannels.emailTest),
+  updateSnmpSettings: (input: SnmpSettingsInput) =>
+    ipcRenderer.invoke(IpcChannels.snmpUpdate, input),
+  testSnmp: (input: SnmpTestInput): Promise<SnmpTestResult> =>
+    ipcRenderer.invoke(IpcChannels.snmpTest, input),
   listTargets: () => ipcRenderer.invoke(IpcChannels.targetsList),
   createTarget: (input: TargetInput) => ipcRenderer.invoke(IpcChannels.targetsCreate, input),
   updateTarget: (id: string, input: TargetInput) =>

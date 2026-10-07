@@ -1,8 +1,10 @@
 import { randomUUID } from 'node:crypto'
-import { icmpPing } from '../monitor/icmp'
+import type { DatabaseSync } from 'node:sqlite'
+import { snmpCheck } from '../monitor/snmp'
+import { resolveSnmpForHost } from '../monitor/snmpConfig'
 
-const SCAN_CONCURRENCY = 24
-const SCAN_TIMEOUT_MS = 1000
+const SCAN_CONCURRENCY = 30
+const SCAN_TIMEOUT_FLOOR_MS = 1000
 
 export interface RangeScanUpdate {
   scanId: string
@@ -29,6 +31,7 @@ export function cancelRangeScan(scanId: string): void {
 }
 
 export function startRangeScan(
+  database: DatabaseSync,
   hosts: string[],
   onUpdate: (update: RangeScanUpdate) => void
 ): string {
@@ -36,11 +39,12 @@ export function startRangeScan(
   const state: ActiveScan = { cancelled: false }
   scans.set(scanId, state)
 
-  void runRangeScan(scanId, hosts, state, onUpdate)
+  void runRangeScan(database, scanId, hosts, state, onUpdate)
   return scanId
 }
 
 async function runRangeScan(
+  database: DatabaseSync,
   scanId: string,
   hosts: string[],
   state: ActiveScan,
@@ -58,7 +62,19 @@ async function runRangeScan(
       }
 
       const host = hosts[current]
-      const result = await icmpPing(host, SCAN_TIMEOUT_MS)
+      const config = resolveSnmpForHost(database, host)
+      let ok = false
+      let responseTimeMs: number | null = null
+
+      if (config) {
+        const probe = await snmpCheck(host, {
+          ...config,
+          timeoutMs: Math.max(config.timeoutMs, SCAN_TIMEOUT_FLOOR_MS)
+        })
+        ok = probe.ok
+        responseTimeMs = probe.responseTimeMs
+      }
+
       if (state.cancelled) {
         return
       }
@@ -67,8 +83,8 @@ async function runRangeScan(
       onUpdate({
         scanId,
         host,
-        status: result.ok ? 'up' : 'down',
-        responseTimeMs: result.responseTimeMs,
+        status: ok ? 'up' : 'down',
+        responseTimeMs,
         completed,
         total: hosts.length,
         finished: false,

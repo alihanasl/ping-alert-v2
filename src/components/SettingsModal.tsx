@@ -1,8 +1,15 @@
 import type { FormEvent } from 'react'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import type { AppSettings, EmailSettingsInput, SettingsUpdateInput, UiLocale } from '@shared/types'
-import { MONITOR_LIMITS } from '@shared/types'
+import type {
+  AppSettings,
+  EmailSettingsInput,
+  SettingsUpdateInput,
+  SnmpSettingsInput,
+  SnmpVersion,
+  UiLocale
+} from '@shared/types'
+import { MONITOR_LIMITS, SNMP_LIMITS, SNMP_VERSIONS } from '@shared/types'
 import { LOCALE_NATIVE_NAMES, SUPPORTED_LOCALES, isUiLocale } from '@shared/locales'
 import i18n from '../i18n'
 
@@ -19,12 +26,24 @@ interface SettingsModalProps {
   onSettingsChange: (settings: AppSettings) => void
   onEmailSubmit: (input: EmailSettingsInput) => Promise<void>
   onEmailTest: () => Promise<void>
+  snmpSaving: boolean
+  snmpError: string | null
+  snmpNotice: string | null
+  onSnmpSubmit: (input: SnmpSettingsInput) => Promise<void>
 }
 
 interface FormState {
   intervalSeconds: string
   failureThreshold: string
   applyToExistingTargets: boolean
+}
+
+interface SnmpFormState {
+  snmpVersion: SnmpVersion
+  port: string
+  timeoutMs: string
+  retryCount: string
+  community: string
 }
 
 interface EmailFormState {
@@ -38,6 +57,16 @@ interface EmailFormState {
   to: string
   notifyDown: boolean
   notifyUp: boolean
+}
+
+function toSnmpForm(settings: AppSettings): SnmpFormState {
+  return {
+    snmpVersion: settings.snmp.snmpVersion,
+    port: String(settings.snmp.port),
+    timeoutMs: String(settings.snmp.timeoutMs),
+    retryCount: String(settings.snmp.retryCount),
+    community: ''
+  }
 }
 
 function toEmailForm(settings: AppSettings): EmailFormState {
@@ -67,7 +96,11 @@ export function SettingsModal({
   onSubmit,
   onSettingsChange,
   onEmailSubmit,
-  onEmailTest
+  onEmailTest,
+  snmpSaving,
+  snmpError,
+  snmpNotice,
+  onSnmpSubmit
 }: SettingsModalProps) {
   const { t } = useTranslation()
   const [form, setForm] = useState<FormState>({
@@ -76,6 +109,7 @@ export function SettingsModal({
     applyToExistingTargets: false
   })
   const [emailForm, setEmailForm] = useState<EmailFormState>(() => toEmailForm(settings))
+  const [snmpForm, setSnmpForm] = useState<SnmpFormState>(() => toSnmpForm(settings))
   const [localeSaving, setLocaleSaving] = useState(false)
 
   useEffect(() => {
@@ -87,6 +121,10 @@ export function SettingsModal({
     setEmailForm((current) => ({
       ...toEmailForm(settings),
       password: current.password
+    }))
+    setSnmpForm((current) => ({
+      ...toSnmpForm(settings),
+      community: current.community
     }))
   }, [settings])
 
@@ -115,6 +153,19 @@ export function SettingsModal({
       failure_threshold: Number(form.failureThreshold),
       applyToExistingTargets: form.applyToExistingTargets
     })
+  }
+
+  async function handleSnmpSubmit(event: FormEvent<HTMLFormElement>): Promise<void> {
+    event.preventDefault()
+
+    await onSnmpSubmit({
+      snmpVersion: snmpForm.snmpVersion,
+      port: Number(snmpForm.port),
+      timeoutMs: Number(snmpForm.timeoutMs),
+      retryCount: Number(snmpForm.retryCount),
+      community: snmpForm.community
+    })
+    setSnmpForm((current) => ({ ...current, community: '' }))
   }
 
   async function handleEmailSubmit(event: FormEvent<HTMLFormElement>): Promise<void> {
@@ -238,6 +289,114 @@ export function SettingsModal({
               className="rounded-lg bg-teal-500 px-4 py-2 text-sm font-medium text-slate-950 hover:bg-teal-400 disabled:opacity-60"
             >
               {saving ? t('common.saving') : t('common.save')}
+            </button>
+          </div>
+        </form>
+
+        <form
+          onSubmit={(event) => void handleSnmpSubmit(event)}
+          className="mt-8 border-t border-slate-800 pt-6"
+        >
+          <h3 className="text-lg font-medium text-slate-100">{t('settings.snmp.title')}</h3>
+          <p className="mt-1 text-sm text-slate-500">{t('settings.snmp.subtitle')}</p>
+
+          <div className="mt-5 space-y-4">
+            <label className="block text-sm">
+              <span className="text-slate-300">{t('settings.snmp.version')}</span>
+              <select
+                value={snmpForm.snmpVersion}
+                onChange={(event) =>
+                  setSnmpForm((current) => ({
+                    ...current,
+                    snmpVersion: event.target.value as SnmpVersion
+                  }))
+                }
+                className={inputClass}
+              >
+                {SNMP_VERSIONS.map((version) => (
+                  <option key={version} value={version}>
+                    {t(`device.form.snmpVersionOption.v${version}`)}
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            <div className="grid grid-cols-2 gap-3">
+              <label className="block text-sm">
+                <span className="text-slate-300">{t('settings.snmp.port')}</span>
+                <input
+                  required
+                  type="number"
+                  min={SNMP_LIMITS.port.min}
+                  max={SNMP_LIMITS.port.max}
+                  value={snmpForm.port}
+                  onChange={(event) =>
+                    setSnmpForm((current) => ({ ...current, port: event.target.value }))
+                  }
+                  className={inputClass}
+                />
+              </label>
+              <label className="block text-sm">
+                <span className="text-slate-300">{t('settings.snmp.timeout')}</span>
+                <input
+                  required
+                  type="number"
+                  min={SNMP_LIMITS.timeoutMs.min}
+                  max={SNMP_LIMITS.timeoutMs.max}
+                  value={snmpForm.timeoutMs}
+                  onChange={(event) =>
+                    setSnmpForm((current) => ({ ...current, timeoutMs: event.target.value }))
+                  }
+                  className={inputClass}
+                />
+              </label>
+            </div>
+
+            <label className="block text-sm">
+              <span className="text-slate-300">{t('settings.snmp.retry')}</span>
+              <input
+                required
+                type="number"
+                min={SNMP_LIMITS.retryCount.min}
+                max={SNMP_LIMITS.retryCount.max}
+                value={snmpForm.retryCount}
+                onChange={(event) =>
+                  setSnmpForm((current) => ({ ...current, retryCount: event.target.value }))
+                }
+                className={inputClass}
+              />
+            </label>
+
+            <label className="block text-sm">
+              <span className="text-slate-300">{t('settings.snmp.community')}</span>
+              <input
+                type="password"
+                maxLength={64}
+                value={snmpForm.community}
+                onChange={(event) =>
+                  setSnmpForm((current) => ({ ...current, community: event.target.value }))
+                }
+                className={inputClass}
+                autoComplete="new-password"
+              />
+              {settings.snmp.communitySet ? (
+                <span className="mt-1 block text-xs text-slate-500">
+                  {t('settings.snmp.communityHint')}
+                </span>
+              ) : null}
+            </label>
+          </div>
+
+          {snmpError ? <p className="mt-4 text-sm text-red-400">{snmpError}</p> : null}
+          {snmpNotice ? <p className="mt-4 text-sm text-teal-400">{snmpNotice}</p> : null}
+
+          <div className="mt-6 flex justify-end">
+            <button
+              type="submit"
+              disabled={snmpSaving}
+              className="rounded-lg bg-teal-500 px-4 py-2 text-sm font-medium text-slate-950 hover:bg-teal-400 disabled:opacity-60"
+            >
+              {snmpSaving ? t('common.saving') : t('settings.snmp.save')}
             </button>
           </div>
         </form>

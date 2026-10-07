@@ -26,10 +26,10 @@
   },
   "devices": {
     "title": "Cihazlar",
-    "subtitle": "ICMP, TCP, HTTP ve SNMP kontrollerinin anlık durumu.",
+    "subtitle": "SNMP, TCP ve HTTP kontrollerinin anlık durumu.",
     "loading": "Cihazlar yükleniyor...",
     "emptyTitle": "Henüz izlenecek cihaz yok",
-    "empty": "ICMP, TCP, HTTP veya SNMP kontrolü için bir cihaz ekleyin. Durum, uptime ve uyarılar burada görünür.",
+    "empty": "SNMP, TCP veya HTTP kontrolü için bir cihaz ekleyin. Durum, uptime ve uyarılar burada görünür.",
     "emptyGroup": "Bu grupta cihaz yok.",
     "noMatch": "Bu arama veya süzgeçle eşleşen cihaz yok.",
     "searchPlaceholder": "Ad veya host ara",
@@ -52,7 +52,7 @@
     "edit": "Cihazı düzenle",
     "delete": "Cihazı sil",
     "form": {
-      "subtitle": "ICMP, TCP, HTTP/HTTPS ve SNMP cihazları kaydedilince otomatik kontrol edilir.",
+      "subtitle": "SNMP, TCP ve HTTP/HTTPS cihazları kaydedilince otomatik kontrol edilir.",
       "name": "Ad",
       "namePlaceholder": "Gateway",
       "host": "IP / Host",
@@ -69,7 +69,14 @@
         "v2c": "SNMPv2c"
       },
       "community": "Community",
-      "communityHint": "Salt okunur community. Yalnızca bu bilgisayarda saklanır.",
+      "communityHint": "İsteğe bağlı. Boş bırakırsanız Ayarlar’daki global community kullanılır.",
+      "communityGlobalHint": "Global SNMP community Ayarlar bölümünden tanımlanır.",
+      "testSnmp": "SNMP test et",
+      "testingSnmp": "Test ediliyor...",
+      "snmpTestSuccess": "SNMP bağlantısı başarılı.\nSystem uptime: {{uptime}}\nSystem name: {{name}}",
+      "snmpTestFailed": "SNMP bağlantısı kurulamadı. Community, SNMP servisi, ACL ve UDP 161 portunu kontrol edin.",
+      "snmpTestNoCommunity": "Ayarlar’da global community tanımlayın veya bu cihaz için community girin.",
+      "snmpTestInvalidHost": "Geçerli bir IP veya host girin.",
       "oid": "OID",
       "oidHint": "Varsayılan sysUpTime (1.3.6.1.2.1.1.3.0). GET başarılıysa cihaz Çevrimiçi sayılır.",
       "interval": "Aralık (sn)",
@@ -144,6 +151,18 @@
       "testSuccess": "Test e-postası gönderildi.",
       "saved": "E-posta ayarları kaydedildi."
     },
+    "snmp": {
+      "title": "SNMP ayarları",
+      "subtitle": "Erişilebilirlik kontrolleri için varsayılan SNMP seçenekleri. Community yalnızca bu bilgisayarda saklanır.",
+      "version": "SNMP sürümü",
+      "port": "Port",
+      "timeout": "Zaman aşımı (ms)",
+      "retry": "Yeniden deneme",
+      "community": "Community",
+      "communityHint": "Kayıtlı community’yi korumak için boş bırakın.",
+      "save": "SNMP ayarlarını kaydet",
+      "saved": "SNMP ayarları kaydedildi."
+    },
     "telegram": {
       "title": "Telegram ayarları",
       "subtitle": "Telegram bildirimlerini yapılandırın."
@@ -214,7 +233,7 @@
       "notFound": "Cihaz bulunamadı",
       "groupNotFound": "Seçilen grup bulunamadı",
       "snmpPort": "SNMP için 1 ile 65535 arasında bir port girin",
-      "snmpCommunity": "Community alanı zorunludur",
+      "snmpCommunity": "Ayarlar’da global community tanımlayın veya bu cihaz için community girin",
       "snmpCommunityTooLong": "Community 64 karakteri geçemez",
       "snmpOid": "1.3.6.1.2.1.1.3.0 gibi sayısal bir OID girin",
       "snmpOidTooLong": "OID 256 karakteri geçemez",
@@ -252,6 +271,12 @@
     },
     "db": {
       "notReady": "Veritabanı henüz başlatılmadı"
+    },
+    "snmp": {
+      "invalidPort": "SNMP portu 1 ile 65535 arasında olmalıdır",
+      "invalidTimeout": "SNMP zaman aşımı 500 ile 30000 ms arasında olmalıdır",
+      "invalidRetry": "SNMP yeniden deneme sayısı 0 ile 5 arasında olmalıdır",
+      "invalidVersion": "Geçersiz SNMP sürümü"
     }
   },
   "probe": {
@@ -277,9 +302,13 @@
     "tooManyRedirects": "Çok fazla yönlendirme",
     "httpFailed": "HTTP isteği başarısız",
     "checkError": "Kontrol hatası",
-    "snmpNoConfig": "SNMP community veya OID eksik",
+    "snmpNoConfig": "SNMP OID eksik",
+    "snmpNoCommunity": "SNMP community tanımlı değil",
     "snmpTimeout": "SNMP zaman aşımı",
-    "snmpFailed": "SNMP isteği başarısız",
+    "snmpFailed": "SNMP hatası",
+    "snmpAuthError": "SNMP kimlik doğrulama veya community hatası",
+    "snmpNetworkError": "SNMP ağ hatası",
+    "snmpUnsupported": "Desteklenmeyen SNMP sürümü veya güvenlik seviyesi",
     "snmpOidError": "OID {{oid}} okunamadı",
     "snmpOk": "{{oid}} = {{value}}"
   },
@@ -303,7 +332,8 @@
     },
     "settings": {
       "updated": "Varsayılan ayarlar güncellendi ({{interval}} sn, eşik {{threshold}})",
-      "updatedApplied": "Varsayılan ayarlar güncellendi ve mevcut cihazlara uygulandı ({{interval}} sn, eşik {{threshold}})"
+      "updatedApplied": "Varsayılan ayarlar güncellendi ve mevcut cihazlara uygulandı ({{interval}} sn, eşik {{threshold}})",
+      "snmpUpdated": "SNMP ayarları güncellendi"
     },
     "monitor": {
       "down": "{{name}} Çevrimdışı oldu",
@@ -335,7 +365,7 @@
   },
   "scan": {
     "title": "IP tara",
-    "subtitle": "Aralıktaki her adrese bir kez ping atılır. Çevrimiçi ve çevrimdışı sonuçlar burada kalır; istediğini kaldırıp seçtiklerini cihaz olarak ekleyebilirsin.",
+    "subtitle": "Aralıktaki her adrese bir kez SNMP ile bakılır. Çevrimiçi ve çevrimdışı sonuçlar burada kalır; istediğini kaldırıp seçtiklerini cihaz olarak ekleyebilirsin.",
     "start": "Başlangıç IP",
     "end": "Bitiş IP",
     "hint": "En fazla {{max}} adres. Örnek: 10.10.10.1 – 10.10.10.254",

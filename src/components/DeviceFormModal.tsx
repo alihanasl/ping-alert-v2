@@ -10,6 +10,7 @@ interface DeviceFormModalProps {
   groups: Group[]
   defaultIntervalSeconds: number
   defaultFailureThreshold: number
+  snmpCommunityConfigured: boolean
   saving: boolean
   error: string | null
   onClose: () => void
@@ -40,23 +41,25 @@ function toFormState(
     return {
       name: '',
       host: '',
-      checkType: 'icmp',
-      port: '80',
+      checkType: 'snmp',
+      port: String(SNMP_DEFAULTS.port),
       enabled: true,
       intervalSeconds: String(defaultIntervalSeconds),
       failureThreshold: String(defaultFailureThreshold),
       groupId: '',
       path: '/',
-      community: SNMP_DEFAULTS.community,
+      community: '',
       oid: SNMP_DEFAULTS.oid,
       snmpVersion: SNMP_DEFAULTS.snmpVersion
     }
   }
 
+  const checkType = target.checkType === 'icmp' ? 'snmp' : target.checkType
+
   return {
     name: target.name,
     host: target.host,
-    checkType: target.checkType,
+    checkType,
     port: String(
       target.config.port ?? (target.checkType === 'snmp' ? SNMP_DEFAULTS.port : 80)
     ),
@@ -65,7 +68,7 @@ function toFormState(
     failureThreshold: String(target.failureThreshold),
     groupId: target.groupId ?? '',
     path: target.config.path ?? '/',
-    community: target.config.community ?? SNMP_DEFAULTS.community,
+    community: target.config.community ?? '',
     oid: target.config.oid ?? SNMP_DEFAULTS.oid,
     snmpVersion: target.config.snmpVersion ?? SNMP_DEFAULTS.snmpVersion
   }
@@ -76,6 +79,7 @@ export function DeviceFormModal({
   groups,
   defaultIntervalSeconds,
   defaultFailureThreshold,
+  snmpCommunityConfigured,
   saving,
   error,
   onClose,
@@ -85,7 +89,11 @@ export function DeviceFormModal({
   const [form, setForm] = useState<FormState>(() =>
     toFormState(target, defaultIntervalSeconds, defaultFailureThreshold)
   )
+  const [snmpTesting, setSnmpTesting] = useState(false)
+  const [snmpNotice, setSnmpNotice] = useState<string | null>(null)
+  const [snmpTestError, setSnmpTestError] = useState<string | null>(null)
   const isEdit = target !== null
+  const showSnmpFields = form.checkType === 'snmp'
 
   useEffect(() => {
     setForm(toFormState(target, defaultIntervalSeconds, defaultFailureThreshold))
@@ -120,6 +128,43 @@ export function DeviceFormModal({
     }
 
     await onSubmit(input)
+  }
+
+  async function handleTestSnmp(): Promise<void> {
+    if (!form.host.trim()) {
+      setSnmpTestError(t('device.form.snmpTestInvalidHost'))
+      setSnmpNotice(null)
+      return
+    }
+
+    setSnmpTesting(true)
+    setSnmpTestError(null)
+    setSnmpNotice(null)
+
+    try {
+      const result = await window.pingAlert.testSnmp({
+        host: form.host.trim(),
+        port: Number(form.port),
+        community: form.community.trim() || undefined,
+        snmpVersion: form.snmpVersion
+      })
+
+      if (result.ok) {
+        setSnmpNotice(
+          t('device.form.snmpTestSuccess', {
+            uptime: result.sysUpTime,
+            name: result.sysName ?? t('common.emDash')
+          })
+        )
+        return
+      }
+
+      setSnmpTestError(t(result.messageKey))
+    } catch {
+      setSnmpTestError(t('device.form.snmpTestFailed'))
+    } finally {
+      setSnmpTesting(false)
+    }
   }
 
   return (
@@ -232,7 +277,7 @@ export function DeviceFormModal({
             </label>
           ) : null}
 
-          {form.checkType === 'snmp' ? (
+          {showSnmpFields ? (
             <>
               <label className="block text-sm">
                 <span className="text-slate-300">{t('device.form.snmpVersion')}</span>
@@ -257,7 +302,6 @@ export function DeviceFormModal({
               <label className="block text-sm">
                 <span className="text-slate-300">{t('device.form.community')}</span>
                 <input
-                  required
                   type="password"
                   maxLength={64}
                   value={form.community}
@@ -270,6 +314,11 @@ export function DeviceFormModal({
                 <span className="mt-1 block text-xs text-slate-500">
                   {t('device.form.communityHint')}
                 </span>
+                {snmpCommunityConfigured && !form.community ? (
+                  <span className="mt-1 block text-xs text-slate-500">
+                    {t('device.form.communityGlobalHint')}
+                  </span>
+                ) : null}
               </label>
 
               <label className="block text-sm">
@@ -286,6 +335,19 @@ export function DeviceFormModal({
                 />
                 <span className="mt-1 block text-xs text-slate-500">{t('device.form.oidHint')}</span>
               </label>
+
+              <button
+                type="button"
+                disabled={snmpTesting || saving}
+                onClick={() => void handleTestSnmp()}
+                className="w-full rounded-lg border border-slate-700 px-4 py-2 text-sm text-slate-200 hover:bg-slate-800 disabled:opacity-60"
+              >
+                {snmpTesting ? t('device.form.testingSnmp') : t('device.form.testSnmp')}
+              </button>
+              {snmpTestError ? <p className="text-sm text-red-400">{snmpTestError}</p> : null}
+              {snmpNotice ? (
+                <p className="whitespace-pre-line text-sm text-teal-400">{snmpNotice}</p>
+              ) : null}
             </>
           ) : null}
 

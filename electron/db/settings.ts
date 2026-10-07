@@ -1,6 +1,18 @@
 import type { DatabaseSync } from 'node:sqlite'
-import type { AppSettings, EmailSettings, EmailSettingsInput, SettingsUpdateInput } from '@shared/types'
-import { DEFAULT_EMAIL_SETTINGS, DEFAULT_SETTINGS } from '@shared/types'
+import type {
+  AppSettings,
+  EmailSettings,
+  EmailSettingsInput,
+  SettingsUpdateInput,
+  SnmpSettingsInput
+} from '@shared/types'
+import {
+  DEFAULT_EMAIL_SETTINGS,
+  DEFAULT_SETTINGS,
+  DEFAULT_SNMP_SETTINGS,
+  SNMP_LIMITS,
+  isSnmpVersion
+} from '@shared/types'
 import { i18nError } from '@shared/i18nMessage'
 import { DEFAULT_LOCALE, isUiLocale, resolveUiLocale, type UiLocale } from '@shared/locales'
 import { normalizeFailureThreshold, normalizeIntervalSeconds } from './monitorLimits'
@@ -64,6 +76,22 @@ export function ensureDefaultSettings(database: DatabaseSync, osLocale?: string)
   if (getSettingValue(database, 'ui_locale') === undefined) {
     setSettingValue(database, 'ui_locale', resolveUiLocale(osLocale))
   }
+
+  if (getSettingValue(database, 'snmp_version') === undefined) {
+    setSettingValue(database, 'snmp_version', DEFAULT_SNMP_SETTINGS.snmpVersion)
+  }
+
+  if (getSettingValue(database, 'snmp_port') === undefined) {
+    setSettingValue(database, 'snmp_port', DEFAULT_SNMP_SETTINGS.port)
+  }
+
+  if (getSettingValue(database, 'snmp_timeout_ms') === undefined) {
+    setSettingValue(database, 'snmp_timeout_ms', DEFAULT_SNMP_SETTINGS.timeoutMs)
+  }
+
+  if (getSettingValue(database, 'snmp_retry_count') === undefined) {
+    setSettingValue(database, 'snmp_retry_count', DEFAULT_SNMP_SETTINGS.retryCount)
+  }
 }
 
 export function markAppOpened(database: DatabaseSync): void {
@@ -82,8 +110,140 @@ export function getAppSettings(database: DatabaseSync): AppSettings {
     ),
     ui_locale: parseUiLocale(getSettingValue(database, 'ui_locale')),
     last_opened_at: parseSetting<string | null>(getSettingValue(database, 'last_opened_at'), null),
-    email: readEmailSettings(database)
+    email: readEmailSettings(database),
+    snmp: readSnmpSettings(database)
   }
+}
+
+export interface SnmpRuntimeSettings {
+  snmpVersion: AppSettings['snmp']['snmpVersion']
+  port: number
+  timeoutMs: number
+  retryCount: number
+  community: string
+}
+
+function readSnmpSettings(database: DatabaseSync): AppSettings['snmp'] {
+  const community = parseSetting(getSettingValue(database, 'snmp_community'), '')
+  return {
+    snmpVersion: parseSnmpVersion(getSettingValue(database, 'snmp_version')),
+    port: parseSnmpPort(getSettingValue(database, 'snmp_port')),
+    timeoutMs: parseSnmpTimeout(getSettingValue(database, 'snmp_timeout_ms')),
+    retryCount: parseSnmpRetry(getSettingValue(database, 'snmp_retry_count')),
+    communitySet: community.length > 0
+  }
+}
+
+export function getSnmpRuntimeSettings(database: DatabaseSync): SnmpRuntimeSettings {
+  const snmp = readSnmpSettings(database)
+  return {
+    snmpVersion: snmp.snmpVersion,
+    port: snmp.port,
+    timeoutMs: snmp.timeoutMs,
+    retryCount: snmp.retryCount,
+    community: parseSetting(getSettingValue(database, 'snmp_community'), '')
+  }
+}
+
+function parseSnmpVersion(raw: string | undefined): AppSettings['snmp']['snmpVersion'] {
+  const parsed = parseSetting<string>(raw, DEFAULT_SNMP_SETTINGS.snmpVersion)
+  return isSnmpVersion(parsed) ? parsed : DEFAULT_SNMP_SETTINGS.snmpVersion
+}
+
+function parseSnmpPort(raw: string | undefined): number {
+  const parsed = parseSetting<number>(raw, DEFAULT_SNMP_SETTINGS.port)
+  if (!Number.isInteger(parsed) || parsed < SNMP_LIMITS.port.min || parsed > SNMP_LIMITS.port.max) {
+    return DEFAULT_SNMP_SETTINGS.port
+  }
+
+  return parsed
+}
+
+function parseSnmpTimeout(raw: string | undefined): number {
+  const parsed = parseSetting<number>(raw, DEFAULT_SNMP_SETTINGS.timeoutMs)
+  if (
+    !Number.isInteger(parsed) ||
+    parsed < SNMP_LIMITS.timeoutMs.min ||
+    parsed > SNMP_LIMITS.timeoutMs.max
+  ) {
+    return DEFAULT_SNMP_SETTINGS.timeoutMs
+  }
+
+  return parsed
+}
+
+function parseSnmpRetry(raw: string | undefined): number {
+  const parsed = parseSetting<number>(raw, DEFAULT_SNMP_SETTINGS.retryCount)
+  if (
+    !Number.isInteger(parsed) ||
+    parsed < SNMP_LIMITS.retryCount.min ||
+    parsed > SNMP_LIMITS.retryCount.max
+  ) {
+    return DEFAULT_SNMP_SETTINGS.retryCount
+  }
+
+  return parsed
+}
+
+function normalizeSnmpInput(database: DatabaseSync, input: SnmpSettingsInput): SnmpRuntimeSettings {
+  const port = input.port
+  const timeoutMs = input.timeoutMs
+  const retryCount = input.retryCount
+  const snmpVersion = input.snmpVersion
+
+  if (!Number.isInteger(port) || port < SNMP_LIMITS.port.min || port > SNMP_LIMITS.port.max) {
+    throw i18nError('errors.snmp.invalidPort')
+  }
+
+  if (
+    !Number.isInteger(timeoutMs) ||
+    timeoutMs < SNMP_LIMITS.timeoutMs.min ||
+    timeoutMs > SNMP_LIMITS.timeoutMs.max
+  ) {
+    throw i18nError('errors.snmp.invalidTimeout')
+  }
+
+  if (
+    !Number.isInteger(retryCount) ||
+    retryCount < SNMP_LIMITS.retryCount.min ||
+    retryCount > SNMP_LIMITS.retryCount.max
+  ) {
+    throw i18nError('errors.snmp.invalidRetry')
+  }
+
+  if (!isSnmpVersion(snmpVersion)) {
+    throw i18nError('errors.snmp.invalidVersion')
+  }
+
+  const storedCommunity = parseSetting(getSettingValue(database, 'snmp_community'), '')
+  const community = input.community.length > 0 ? input.community.trim() : storedCommunity
+
+  if (community.length > 64) {
+    throw i18nError('errors.device.snmpCommunityTooLong')
+  }
+
+  return {
+    snmpVersion,
+    port,
+    timeoutMs,
+    retryCount,
+    community
+  }
+}
+
+export function updateSnmpSettings(database: DatabaseSync, input: SnmpSettingsInput): AppSettings {
+  const normalized = normalizeSnmpInput(database, input)
+
+  setSettingValue(database, 'snmp_version', normalized.snmpVersion)
+  setSettingValue(database, 'snmp_port', normalized.port)
+  setSettingValue(database, 'snmp_timeout_ms', normalized.timeoutMs)
+  setSettingValue(database, 'snmp_retry_count', normalized.retryCount)
+
+  if (input.community.length > 0) {
+    setSettingValue(database, 'snmp_community', normalized.community)
+  }
+
+  return getAppSettings(database)
 }
 
 export interface EmailRuntimeConfig extends Omit<EmailSettings, 'passwordSet'> {

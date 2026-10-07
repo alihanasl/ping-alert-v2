@@ -6,6 +6,7 @@ import type { BulkCreateResult, Target, TargetConfig, TargetInput } from '@share
 import { isCheckType, isSnmpVersion, SNMP_DEFAULTS } from '@shared/types'
 import { groupExists } from './groups'
 import { normalizeFailureThreshold, normalizeIntervalSeconds } from './monitorLimits'
+import { getSnmpRuntimeSettings } from './settings'
 
 interface TargetRow {
   id: string
@@ -111,10 +112,13 @@ function mapTarget(row: TargetRow): Target {
   }
 }
 
-function normalizeInput(input: TargetInput): TargetInput {
+function normalizeInput(database: DatabaseSync, input: TargetInput): TargetInput {
   const name = input.name.trim()
   const host = input.host.trim()
-  const checkType = input.checkType
+  let checkType = input.checkType
+  if (checkType === 'icmp') {
+    checkType = 'snmp'
+  }
 
   if (!name) {
     throw i18nError('errors.device.nameRequired')
@@ -179,13 +183,16 @@ function normalizeInput(input: TargetInput): TargetInput {
     config.port = port
 
     const community = (input.config.community ?? '').trim()
-    if (!community) {
+    const globalCommunity = getSnmpRuntimeSettings(database).community
+    if (!community && !globalCommunity) {
       throw i18nError('errors.device.snmpCommunity')
     }
     if (community.length > 64) {
       throw i18nError('errors.device.snmpCommunityTooLong')
     }
-    config.community = community
+    if (community) {
+      config.community = community
+    }
 
     config.oid = normalizeOid(input.config.oid)
 
@@ -247,7 +254,7 @@ export function listTargets(database: DatabaseSync): Target[] {
 
 export function createTarget(database: DatabaseSync, input: TargetInput): Target {
   const normalized = {
-    ...normalizeInput(input),
+    ...normalizeInput(database, input),
     groupId: resolveGroupId(database, input.groupId)
   }
   const timestamp = nowIso()
@@ -283,7 +290,7 @@ export function createTarget(database: DatabaseSync, input: TargetInput): Target
 export function updateTarget(database: DatabaseSync, id: string, input: TargetInput): Target {
   getById(database, id)
   const normalized = {
-    ...normalizeInput(input),
+    ...normalizeInput(database, input),
     groupId: resolveGroupId(database, input.groupId)
   }
 
@@ -317,7 +324,7 @@ export function deleteTarget(database: DatabaseSync, id: string): void {
   database.prepare('DELETE FROM targets WHERE id = ?').run(id)
 }
 
-export function createIcmpHosts(
+export function createSnmpHosts(
   database: DatabaseSync,
   hosts: string[],
   groupId: string | null,
@@ -350,7 +357,7 @@ export function createIcmpHosts(
   const resolvedGroupId = resolveGroupId(database, groupId)
   const existingHosts = new Set(
     listTargets(database)
-      .filter((target) => target.checkType === 'icmp')
+      .filter((target) => target.checkType === 'snmp' || target.checkType === 'icmp')
       .map((target) => target.host)
   )
   const interval = normalizeIntervalSeconds(intervalSeconds)
@@ -362,7 +369,7 @@ export function createIcmpHosts(
       id, group_id, name, host, check_type, config,
       interval_seconds, failure_threshold, enabled,
       created_at, updated_at
-    ) VALUES (?, ?, ?, ?, 'icmp', '{}', ?, ?, 1, ?, ?)
+    ) VALUES (?, ?, ?, ?, 'snmp', '{}', ?, ?, 1, ?, ?)
   `
   )
 

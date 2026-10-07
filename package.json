@@ -1,6 +1,6 @@
 {
   "name": "ping-alert-v2",
-  "version": "0.1.0",
+  "version": "2.2.0",
   "private": true,
   "description": "Windows desktop network monitoring application",
   "author": "Ping Alert",

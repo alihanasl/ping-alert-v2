@@ -1,5 +1,20 @@
 import { DEFAULT_SETTINGS } from '@shared/types'
-import type { AppLog, AppSettings, BulkCreateResult, EmailSettingsInput, Group, GroupInput, HistoryRange, HostsCreateInput, LogQuery, SettingsUpdateInput, Target, TargetInput, UiLocale } from '@shared/types'
+import type {
+  AppLog,
+  AppSettings,
+  BulkCreateResult,
+  EmailSettingsInput,
+  Group,
+  GroupInput,
+  HistoryRange,
+  HostsCreateInput,
+  LogQuery,
+  SettingsUpdateInput,
+  SnmpSettingsInput,
+  Target,
+  TargetInput,
+  UiLocale
+} from '@shared/types'
 import { attachMonitorState, getTargetHistory as readTargetHistory } from './checks'
 import { getDatabase } from './connection'
 import {
@@ -8,9 +23,15 @@ import {
   listGroups as readGroups,
   updateGroup as saveGroup
 } from './groups'
-import { getAppSettings as readAppSettings, updateAppSettings as saveAppSettings, updateEmailSettings as saveEmailSettings, updateUiLocale as saveUiLocale } from './settings'
 import {
-  createIcmpHosts as insertIcmpHosts,
+  getAppSettings as readAppSettings,
+  updateAppSettings as saveAppSettings,
+  updateEmailSettings as saveEmailSettings,
+  updateSnmpSettings as saveSnmpSettings,
+  updateUiLocale as saveUiLocale
+} from './settings'
+import {
+  createSnmpHosts as insertSnmpHosts,
   createTarget as insertTarget,
   deleteTarget as removeTarget,
   listTargets as readTargets,
@@ -47,6 +68,10 @@ export function updateEmailSettings(input: EmailSettingsInput): AppSettings {
   return saveEmailSettings(getDatabase(), input)
 }
 
+export function updateSnmpSettings(input: SnmpSettingsInput): AppSettings {
+  return saveSnmpSettings(getDatabase(), input)
+}
+
 export function listTargets(): Target[] {
   return attachMonitorState(getDatabase(), readTargets(getDatabase()))
 }
@@ -55,9 +80,9 @@ export function createTarget(input: TargetInput): Target {
   return withMonitorState(insertTarget(getDatabase(), input))
 }
 
-export function createIcmpHosts(input: HostsCreateInput): BulkCreateResult {
+export function createSnmpHosts(input: HostsCreateInput): BulkCreateResult {
   const settings = getAppSettings()
-  return insertIcmpHosts(
+  return insertSnmpHosts(
     getDatabase(),
     input.hosts,
     input.groupId,

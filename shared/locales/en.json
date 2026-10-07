@@ -26,10 +26,10 @@
   },
   "devices": {
     "title": "Devices",
-    "subtitle": "Live status of ICMP, TCP, HTTP, and SNMP checks.",
+    "subtitle": "Live status of SNMP, TCP, and HTTP checks.",
     "loading": "Loading devices...",
     "emptyTitle": "Nothing to monitor yet",
-    "empty": "Add a device to start ICMP, TCP, HTTP, or SNMP checks. Status, uptime, and alerts appear here.",
+    "empty": "Add a device to start SNMP, TCP, or HTTP checks. Status, uptime, and alerts appear here.",
     "emptyGroup": "No devices in this group.",
     "noMatch": "No devices match this search or filter.",
     "searchPlaceholder": "Search by name or host",
@@ -52,7 +52,7 @@
     "edit": "Edit device",
     "delete": "Delete device",
     "form": {
-      "subtitle": "ICMP, TCP, HTTP/HTTPS, and SNMP devices are checked automatically after they are saved.",
+      "subtitle": "SNMP, TCP, and HTTP/HTTPS devices are checked automatically after they are saved.",
       "name": "Name",
       "namePlaceholder": "Gateway",
       "host": "IP / Host",
@@ -69,7 +69,14 @@
         "v2c": "SNMPv2c"
       },
       "community": "Community",
-      "communityHint": "Read-only community string. Stored only on this computer.",
+      "communityHint": "Optional. Leave blank to use the global community from Settings.",
+      "communityGlobalHint": "Global SNMP community is configured in Settings.",
+      "testSnmp": "Test SNMP",
+      "testingSnmp": "Testing...",
+      "snmpTestSuccess": "SNMP connection successful.\nSystem uptime: {{uptime}}\nSystem name: {{name}}",
+      "snmpTestFailed": "SNMP connection failed. Check community, SNMP service, ACL, and UDP port 161.",
+      "snmpTestNoCommunity": "Set the global SNMP community in Settings or enter one for this device.",
+      "snmpTestInvalidHost": "Enter a valid IP address or host.",
       "oid": "OID",
       "oidHint": "Default is sysUpTime (1.3.6.1.2.1.1.3.0). A successful GET means Online.",
       "interval": "Interval (sec)",
@@ -144,6 +151,18 @@
       "testSuccess": "Test email sent.",
       "saved": "Email settings saved."
     },
+    "snmp": {
+      "title": "SNMP settings",
+      "subtitle": "Default SNMP options for reachability checks. The community is stored only on this computer.",
+      "version": "SNMP version",
+      "port": "Port",
+      "timeout": "Timeout (ms)",
+      "retry": "Retries",
+      "community": "Community",
+      "communityHint": "Leave blank to keep the saved community.",
+      "save": "Save SNMP settings",
+      "saved": "SNMP settings saved."
+    },
     "telegram": {
       "title": "Telegram settings",
       "subtitle": "Configure Telegram notifications."
@@ -214,7 +233,7 @@
       "notFound": "Device not found",
       "groupNotFound": "The selected group was not found",
       "snmpPort": "Enter an SNMP port between 1 and 65535",
-      "snmpCommunity": "Community string is required",
+      "snmpCommunity": "Set the global SNMP community in Settings or enter one for this device",
       "snmpCommunityTooLong": "Community string cannot exceed 64 characters",
       "snmpOid": "Enter a numeric OID such as 1.3.6.1.2.1.1.3.0",
       "snmpOidTooLong": "OID cannot exceed 256 characters",
@@ -252,6 +271,12 @@
     },
     "db": {
       "notReady": "The database is not ready yet"
+    },
+    "snmp": {
+      "invalidPort": "SNMP port must be between 1 and 65535",
+      "invalidTimeout": "SNMP timeout must be between 500 and 30000 ms",
+      "invalidRetry": "SNMP retries must be between 0 and 5",
+      "invalidVersion": "Invalid SNMP version"
     }
   },
   "probe": {
@@ -277,9 +302,13 @@
     "tooManyRedirects": "Too many redirects",
     "httpFailed": "HTTP request failed",
     "checkError": "Check error",
-    "snmpNoConfig": "SNMP community or OID is missing",
-    "snmpTimeout": "SNMP timed out",
-    "snmpFailed": "SNMP request failed",
+    "snmpNoConfig": "SNMP OID is missing",
+    "snmpNoCommunity": "SNMP community is not configured",
+    "snmpTimeout": "SNMP timeout",
+    "snmpFailed": "SNMP error",
+    "snmpAuthError": "SNMP authentication or community error",
+    "snmpNetworkError": "SNMP network error",
+    "snmpUnsupported": "Unsupported SNMP version or security level",
     "snmpOidError": "OID {{oid}} could not be read",
     "snmpOk": "{{oid}} = {{value}}"
   },
@@ -303,7 +332,8 @@
     },
     "settings": {
       "updated": "Default settings updated ({{interval}} s, threshold {{threshold}})",
-      "updatedApplied": "Default settings updated and applied to existing devices ({{interval}} s, threshold {{threshold}})"
+      "updatedApplied": "Default settings updated and applied to existing devices ({{interval}} s, threshold {{threshold}})",
+      "snmpUpdated": "SNMP settings updated"
     },
     "monitor": {
       "down": "{{name}} went Offline",
@@ -335,7 +365,7 @@
   },
   "scan": {
     "title": "Scan IPs",
-    "subtitle": "Each address in the range is pinged once. Online and offline results stay here so you can remove any and add the ones you want.",
+    "subtitle": "Each address in the range is checked once with SNMP. Online and offline results stay here so you can remove any and add the ones you want.",
     "start": "Start IP",
     "end": "End IP",
     "hint": "Up to {{max}} addresses. Example: 10.10.10.1 – 10.10.10.254",

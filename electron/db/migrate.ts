@@ -10,6 +10,16 @@ const migrations: Migration[] = [
   {
     version: 1,
     sql: INITIAL_SCHEMA
+  },
+  {
+    version: 2,
+    sql: `
+UPDATE targets
+SET check_type = 'snmp',
+    config = '{"port":161,"oid":"1.3.6.1.2.1.1.3.0","snmpVersion":"2c"}',
+    updated_at = datetime('now')
+WHERE check_type = 'icmp';
+`
   }
 ]
 

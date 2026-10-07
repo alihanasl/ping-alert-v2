@@ -1,6 +1,18 @@
 import { ipcMain } from 'electron'
 import { IpcChannels } from '@shared/ipc'
-import type { EmailSettingsInput, GroupInput, HistoryRange, HostsCreateInput, IpRangeInput, LogQuery, SettingsUpdateInput, TargetInput, UiLocale } from '@shared/types'
+import type {
+  EmailSettingsInput,
+  GroupInput,
+  HistoryRange,
+  HostsCreateInput,
+  IpRangeInput,
+  LogQuery,
+  SettingsUpdateInput,
+  SnmpSettingsInput,
+  SnmpTestInput,
+  TargetInput,
+  UiLocale
+} from '@shared/types'
 import { isHistoryRange } from '@shared/types'
 import { i18nError } from '@shared/i18nMessage'
 import { expandIpv4Range, IP_RANGE_MAX } from '@shared/ipRange'
@@ -9,7 +21,9 @@ import { writeAppLog } from '../appLog'
 import {
   clearLogs,
   createGroup,
-  createIcmpHosts,
+  createSnmpHosts,
+  getDatabase,
+  updateSnmpSettings,
   createTarget,
   deleteGroup,
   deleteTarget,
@@ -27,6 +41,7 @@ import {
 } from '../db'
 import { setMainLocale } from '../i18n'
 import { reloadMonitoring } from '../monitor/engine'
+import { runSnmpTest } from '../monitor/snmp'
 import { sendTestEmail } from '../notify/email'
 import { cancelRangeScan, startRangeScan } from '../scan/rangeScan'
 
@@ -111,6 +126,15 @@ export function registerIpcHandlers(): void {
     return settings
   })
   ipcMain.handle(IpcChannels.emailTest, () => sendTestEmail())
+  ipcMain.handle(IpcChannels.snmpUpdate, (_event, input: SnmpSettingsInput) => {
+    const settings = updateSnmpSettings(input)
+    reloadMonitoring()
+    writeAppLog('info', 'settings', 'log.settings.snmpUpdated')
+    return settings
+  })
+  ipcMain.handle(IpcChannels.snmpTest, (_event, input: SnmpTestInput) => {
+    return runSnmpTest(getDatabase(), input)
+  })
   ipcMain.handle(IpcChannels.scanStart, (event, input: IpRangeInput) => {
     if (!input?.start || !input?.end) {
       throw rangeError('invalid')
@@ -121,7 +145,7 @@ export function registerIpcHandlers(): void {
       throw rangeError(range.error)
     }
 
-    const scanId = startRangeScan(range.hosts, (update) => {
+    const scanId = startRangeScan(getDatabase(), range.hosts, (update) => {
       if (!event.sender.isDestroyed()) {
         event.sender.send(IpcChannels.scanProgress, update)
       }
@@ -139,7 +163,7 @@ export function registerIpcHandlers(): void {
       throw i18nError('errors.scan.empty')
     }
 
-    const result = createIcmpHosts(input)
+    const result = createSnmpHosts(input)
     if (result.created > 0) {
       reloadMonitoring()
       writeAppLog('info', 'targets', 'log.device.rangeAdded', {

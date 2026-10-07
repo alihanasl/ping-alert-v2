@@ -7,7 +7,6 @@ import { notifyDeviceStatus } from '../notify/email'
 import { broadcastTargetStatus } from './broadcast'
 import { isScheduledCheck, probeTarget } from './probe'
 
-const CHECK_TIMEOUT_MS = 2000
 const FIRST_CHECK_DELAY_MS = 300
 
 const timers = new Map<string, NodeJS.Timeout>()
@@ -49,9 +48,10 @@ function toStatusUpdate(target: Target): TargetStatusUpdate {
 }
 
 async function checkTarget(target: Target, currentRun: number): Promise<void> {
+  const database = getDatabase()
   let result
   try {
-    result = await probeTarget(target, CHECK_TIMEOUT_MS)
+    result = await probeTarget(database, target)
   } catch (error) {
     writeAppLog('error', 'monitor', 'log.monitor.checkError', {
       name: target.name,
@@ -68,7 +68,6 @@ async function checkTarget(target: Target, currentRun: number): Promise<void> {
     return
   }
 
-  const database = getDatabase()
   insertCheckResult(database, {
     targetId: target.id,
     probeOk: result.ok,
